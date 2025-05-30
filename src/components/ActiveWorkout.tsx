@@ -171,20 +171,25 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
         </button>
       </div>
 
-      {/* Stats */}
+      {/* Stats Card */}
       <div className="px-6 pb-4">
-        <div className="flex flex-col gap-2">
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center border border-white/20">
-            <div className="text-xl font-bold text-purple-400">{formatDuration(duration)}</div>
-            <div className="text-xs text-purple-200">Duration</div>
+        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+          {/* Duration - Centered at top */}
+          <div className="text-center mb-4">
+            <div className="text-3xl font-bold text-purple-400">{formatDuration(duration)}</div>
+            <div className="text-sm text-purple-200">Duration</div>
           </div>
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center border border-white/20">
-            <div className="text-xl font-bold text-blue-400">{workout.totalSets}</div>
-            <div className="text-xs text-blue-200">Total Sets</div>
-          </div>
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center border border-white/20">
-            <div className="text-xl font-bold text-green-400">{workout.totalWeight.toFixed(0)}kg</div>
-            <div className="text-xs text-green-200">Total Weight</div>
+          
+          {/* Sets and Weight - Same row underneath */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="text-center">
+              <div className="text-xl font-bold text-blue-400">{workout.totalSets}</div>
+              <div className="text-xs text-blue-200">Total Sets</div>
+            </div>
+            <div className="text-center">
+              <div className="text-xl font-bold text-green-400">{workout.totalWeight.toFixed(0)}kg</div>
+              <div className="text-xs text-green-200">Total Weight</div>
+            </div>
           </div>
         </div>
       </div>
