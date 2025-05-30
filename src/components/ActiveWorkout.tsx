@@ -208,44 +208,46 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
               <div className="space-y-2 mb-3">
                 {exercise.sets.map((set, index) => (
                   <div key={set.id} className="bg-white/10 rounded-lg p-3">
-                    <div className="flex items-center space-x-2 mb-2">
+                    <div className="flex items-center space-x-2 mb-3">
                       <Hash className="w-3 h-3 text-purple-400" />
                       <span className="text-xs font-medium text-purple-200">Set {index + 1}</span>
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-3 mb-2">
-                      <div>
-                        <label className="block text-xs text-gray-300 mb-1 font-medium">Weight (kg)</label>
+                    {/* Weight, Reps, and Notes on same row */}
+                    <div className="flex items-center space-x-3">
+                      <div className="flex items-center space-x-1">
                         <input
                           type="number"
                           placeholder="0"
                           value={set.weight || ''}
                           onChange={(e) => updateSet(exercise.id, set.id, 'weight', parseFloat(e.target.value) || 0)}
-                          className="w-full bg-white/20 rounded-lg px-3 py-2 text-white text-center text-lg font-bold border border-white/20 focus:border-purple-400 focus:outline-none"
+                          className="w-12 bg-transparent text-white text-center text-lg font-bold border-0 border-b border-white/30 focus:border-purple-400 focus:outline-none pb-1"
                         />
+                        <span className="text-xs text-gray-300">kg</span>
                       </div>
                       
-                      <div>
-                        <label className="block text-xs text-gray-300 mb-1 font-medium">Reps</label>
+                      <span className="text-gray-400">×</span>
+                      
+                      <div className="flex items-center space-x-1">
                         <input
                           type="number"
                           placeholder="0"
                           value={set.reps || ''}
                           onChange={(e) => updateSet(exercise.id, set.id, 'reps', parseInt(e.target.value) || 0)}
-                          className="w-full bg-white/20 rounded-lg px-3 py-2 text-white text-center text-lg font-bold border border-white/20 focus:border-purple-400 focus:outline-none"
+                          className="w-12 bg-transparent text-white text-center text-lg font-bold border-0 border-b border-white/30 focus:border-purple-400 focus:outline-none pb-1"
+                        />
+                        <span className="text-xs text-gray-300">reps</span>
+                      </div>
+                      
+                      <div className="flex-1">
+                        <input
+                          type="text"
+                          placeholder="notes..."
+                          value={set.notes || ''}
+                          onChange={(e) => updateSet(exercise.id, set.id, 'notes', e.target.value)}
+                          className="w-full bg-transparent text-white text-sm border-0 border-b border-white/30 focus:border-purple-400 focus:outline-none pb-1 placeholder:text-gray-400"
                         />
                       </div>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-xs text-gray-300 mb-1 font-medium">Notes (optional)</label>
-                      <input
-                        type="text"
-                        placeholder="Add notes..."
-                        value={set.notes || ''}
-                        onChange={(e) => updateSet(exercise.id, set.id, 'notes', e.target.value)}
-                        className="w-full bg-white/20 rounded-lg px-3 py-1.5 text-white text-sm border border-white/20 focus:border-purple-400 focus:outline-none"
-                      />
                     </div>
                   </div>
                 ))}
