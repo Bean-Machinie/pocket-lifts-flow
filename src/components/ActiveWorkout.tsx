@@ -32,7 +32,6 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
   const setRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const previousExerciseCount = useRef(0);
   const previousSetCounts = useRef<{ [key: string]: number }>({});
-  const hasInitializedRefs = useRef(false);
 
   useEffect(() => {
     if (!workout) return;
@@ -46,38 +45,9 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
     return () => clearInterval(interval);
   }, [workout]);
 
-  // Initialize refs and position immediately on first render
+  // Track when new exercises or sets are added
   useEffect(() => {
-    if (!workout || hasInitializedRefs.current) return;
-
-    // Set initial counts
-    previousExerciseCount.current = workout.exercises.length;
-    workout.exercises.forEach(exercise => {
-      previousSetCounts.current[exercise.id] = exercise.sets.length;
-    });
-
-    // If we have exercises, immediately scroll to the last one (likely just added)
-    if (workout.exercises.length > 0) {
-      const lastExercise = workout.exercises[workout.exercises.length - 1];
-      // Use requestAnimationFrame to ensure the DOM is ready
-      requestAnimationFrame(() => {
-        const element = exerciseRefs.current[lastExercise.id];
-        if (element) {
-          element.scrollIntoView({ 
-            behavior: 'instant', 
-            block: 'center',
-            inline: 'nearest'
-          });
-        }
-      });
-    }
-
-    hasInitializedRefs.current = true;
-  }, [workout?.exercises.length]);
-
-  // Track when new exercises or sets are added (for subsequent additions)
-  useEffect(() => {
-    if (!workout || !hasInitializedRefs.current) return;
+    if (!workout) return;
 
     const currentExerciseCount = workout.exercises.length;
     
@@ -93,7 +63,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
             inline: 'nearest'
           });
         }
-      }, 50);
+      }, 100);
     }
     
     // Check if new sets were added to existing exercises
@@ -112,7 +82,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
               inline: 'nearest'
             });
           }
-        }, 50);
+        }, 100);
       }
       
       previousSetCounts.current[exercise.id] = currentSetCount;
@@ -120,11 +90,6 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
     
     previousExerciseCount.current = currentExerciseCount;
   }, [workout?.exercises]);
-
-  // Reset initialization flag when workout changes
-  useEffect(() => {
-    hasInitializedRefs.current = false;
-  }, [workout?.id]);
 
   const formatDuration = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
