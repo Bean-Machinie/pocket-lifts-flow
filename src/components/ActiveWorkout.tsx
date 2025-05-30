@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Clock, ArrowLeft, Edit3, Hash, X } from 'lucide-react';
+import { Plus, Clock, ArrowLeft, Hash, X } from 'lucide-react';
 import { Workout, Exercise } from './WorkoutApp';
 import { DeleteConfirmDialog } from './DeleteConfirmDialog';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { Input } from './ui/input';
 
 interface ActiveWorkoutProps {
   workout: Workout | null;
@@ -19,8 +21,6 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
   onBack
 }) => {
   const [duration, setDuration] = useState(0);
-  const [isEditingTime, setIsEditingTime] = useState(false);
-  const [customStartTime, setCustomStartTime] = useState('');
   const [deleteDialog, setDeleteDialog] = useState<{
     isOpen: boolean;
     type: 'set' | 'exercise';
@@ -47,12 +47,35 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const formatDate = (date: Date) => {
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    }).format(date);
+  };
+
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString('en-US', { 
       hour: '2-digit', 
       minute: '2-digit',
       hour12: false 
     });
+  };
+
+  const updateStartTime = (newTime: string) => {
+    if (!workout || !newTime) return;
+
+    const [hours, minutes] = newTime.split(':');
+    const newStartTime = new Date(workout.startTime);
+    newStartTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+
+    const updatedWorkout = {
+      ...workout,
+      startTime: newStartTime
+    };
+
+    onUpdateWorkout(updatedWorkout);
   };
 
   const addSet = (exerciseId: string) => {
@@ -116,23 +139,6 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
     onUpdateWorkout(finalWorkout);
   };
 
-  const updateStartTime = () => {
-    if (!workout || !customStartTime) return;
-
-    const [hours, minutes] = customStartTime.split(':');
-    const newStartTime = new Date();
-    newStartTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-
-    const updatedWorkout = {
-      ...workout,
-      startTime: newStartTime
-    };
-
-    onUpdateWorkout(updatedWorkout);
-    setIsEditingTime(false);
-    setCustomStartTime('');
-  };
-
   const deleteSet = (exerciseId: string, setId: string) => {
     if (!workout) return;
 
@@ -169,74 +175,70 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
 
   return (
     <div className="min-h-screen text-white flex flex-col animate-slide-in-right">
-      {/* Header */}
-      <div className="flex justify-between items-center p-6 pb-4">
-        <div className="flex items-center space-x-3">
+      {/* Sticky Header */}
+      <div className="sticky top-0 z-10 bg-gradient-to-b from-purple-900 via-purple-900 to-purple-900/95 backdrop-blur-sm border-b border-white/10">
+        <div className="flex justify-between items-center p-6 pb-4">
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={onBack}
+              className="bg-white/10 text-white p-2 rounded-xl border border-white/20"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <div>
+              <h1 className="text-2xl font-bold text-purple-200">Active Workout</h1>
+              <div className="flex items-center space-x-2 mt-1">
+                <Clock className="w-4 h-4 text-blue-400" />
+                <span className="text-blue-300 text-sm">{formatDate(workout.startTime)}</span>
+                <span className="text-blue-300 text-sm">•</span>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="text-blue-300 text-sm hover:text-blue-200 transition-colors">
+                      {formatTime(workout.startTime)}
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-3 bg-gray-800 border-gray-600">
+                    <div className="space-y-2">
+                      <label className="text-sm text-gray-300">Start time</label>
+                      <Input
+                        type="time"
+                        value={formatTime(workout.startTime)}
+                        onChange={(e) => updateStartTime(e.target.value)}
+                        className="bg-gray-700 border-gray-600 text-white"
+                      />
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+          </div>
           <button
-            onClick={onBack}
-            className="bg-white/10 text-white p-2 rounded-xl border border-white/20"
+            onClick={onEndWorkout}
+            className="bg-green-500/20 text-green-400 p-2 rounded-xl border border-green-400/30 flex items-center space-x-2"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <span className="text-sm font-medium">Finish</span>
           </button>
-          <div>
-            <h1 className="text-2xl font-bold text-purple-200">Active Workout</h1>
-            <div className="flex items-center space-x-2 mt-1">
-              <Clock className="w-4 h-4 text-blue-400" />
-              {isEditingTime ? (
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="time"
-                    value={customStartTime}
-                    onChange={(e) => setCustomStartTime(e.target.value)}
-                    className="bg-white/20 rounded px-2 py-1 text-sm"
-                  />
-                  <button onClick={updateStartTime} className="text-green-400 text-sm">
-                    Save
-                  </button>
-                  <button onClick={() => setIsEditingTime(false)} className="text-red-400 text-sm">
-                    Cancel
-                  </button>
-                </div>
-              ) : (
-                <div className="flex items-center space-x-2">
-                  <span className="text-blue-300 text-sm">Started at {formatTime(workout.startTime)}</span>
-                  <button onClick={() => {
-                    setIsEditingTime(true);
-                    setCustomStartTime(formatTime(workout.startTime));
-                  }}>
-                    <Edit3 className="w-3 h-3 text-blue-400" />
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
         </div>
-        <button
-          onClick={onEndWorkout}
-          className="bg-green-500/20 text-green-400 p-2 rounded-xl border border-green-400/30 flex items-center space-x-2"
-        >
-          <span className="text-sm font-medium">Finish</span>
-        </button>
-      </div>
 
-      {/* Stats Card */}
-      <div className="px-6 pb-4">
-        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-          {/* Duration - Centered at top */}
-          <div className="text-center mb-4">
-            <div className="text-3xl font-bold text-purple-400">{formatDuration(duration)}</div>
-            <div className="text-sm text-purple-200">Duration</div>
-          </div>
-          
-          {/* Sets and Weight - Same row underneath */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="text-center">
-              <div className="text-xl font-bold text-blue-400">{workout.totalSets}</div>
-              <div className="text-xs text-blue-200">Total Sets</div>
+        {/* Stats Card */}
+        <div className="px-6 pb-4">
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+            {/* Duration - Centered at top */}
+            <div className="text-center mb-4">
+              <div className="text-3xl font-bold text-purple-400">{formatDuration(duration)}</div>
+              <div className="text-sm text-purple-200">Duration</div>
             </div>
-            <div className="text-center">
-              <div className="text-xl font-bold text-green-400">{workout.totalWeight.toFixed(0)}kg</div>
-              <div className="text-xs text-green-200">Total Weight</div>
+            
+            {/* Sets and Weight - Same row underneath */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center">
+                <div className="text-xl font-bold text-blue-400">{workout.totalSets}</div>
+                <div className="text-xs text-blue-200">Total Sets</div>
+              </div>
+              <div className="text-center">
+                <div className="text-xl font-bold text-green-400">{workout.totalWeight.toFixed(0)}kg</div>
+                <div className="text-xs text-green-200">Total Weight</div>
+              </div>
             </div>
           </div>
         </div>
