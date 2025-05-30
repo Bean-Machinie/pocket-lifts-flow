@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Clock, ArrowLeft, Hash, X } from 'lucide-react';
 import { Workout, Exercise } from './WorkoutApp';
 import { DeleteConfirmDialog } from './DeleteConfirmDialog';
@@ -28,6 +27,11 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
     exerciseId?: string;
     setId?: string;
   }>({ isOpen: false, type: 'set' });
+  
+  const exerciseRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const setRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const previousExerciseCount = useRef(0);
+  const previousSetCounts = useRef<{ [key: string]: number }>({});
 
   useEffect(() => {
     if (!workout) return;
@@ -40,6 +44,52 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
 
     return () => clearInterval(interval);
   }, [workout]);
+
+  // Track when new exercises or sets are added
+  useEffect(() => {
+    if (!workout) return;
+
+    const currentExerciseCount = workout.exercises.length;
+    
+    // Check if a new exercise was added
+    if (currentExerciseCount > previousExerciseCount.current) {
+      const newestExercise = workout.exercises[currentExerciseCount - 1];
+      setTimeout(() => {
+        const element = exerciseRefs.current[newestExercise.id];
+        if (element) {
+          element.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center',
+            inline: 'nearest'
+          });
+        }
+      }, 100);
+    }
+    
+    // Check if new sets were added to existing exercises
+    workout.exercises.forEach(exercise => {
+      const currentSetCount = exercise.sets.length;
+      const previousSetCount = previousSetCounts.current[exercise.id] || 0;
+      
+      if (currentSetCount > previousSetCount) {
+        const newestSet = exercise.sets[currentSetCount - 1];
+        setTimeout(() => {
+          const element = setRefs.current[newestSet.id];
+          if (element) {
+            element.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'center',
+              inline: 'nearest'
+            });
+          }
+        }, 100);
+      }
+      
+      previousSetCounts.current[exercise.id] = currentSetCount;
+    });
+    
+    previousExerciseCount.current = currentExerciseCount;
+  }, [workout?.exercises]);
 
   const formatDuration = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
@@ -250,7 +300,11 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
         {/* Exercises */}
         <div className="space-y-3">
           {workout.exercises.map((exercise) => (
-            <div key={exercise.id} className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20 animate-scale-in relative">
+            <div 
+              key={exercise.id} 
+              ref={el => exerciseRefs.current[exercise.id] = el}
+              className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20 animate-scale-in relative"
+            >
               {/* Exercise delete button */}
               <button
                 onClick={() => openDeleteDialog('exercise', exercise.id)}
@@ -267,7 +321,11 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
               {/* Sets */}
               <div className="space-y-2 mb-3">
                 {exercise.sets.map((set, index) => (
-                  <div key={set.id} className="bg-white/10 rounded-lg p-3 relative">
+                  <div 
+                    key={set.id} 
+                    ref={el => setRefs.current[set.id] = el}
+                    className="bg-white/10 rounded-lg p-3 relative"
+                  >
                     {/* Set delete button */}
                     <button
                       onClick={() => openDeleteDialog('set', exercise.id, set.id)}
