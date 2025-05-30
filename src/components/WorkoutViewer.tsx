@@ -1,7 +1,7 @@
-
 import React, { useState } from 'react';
-import { ArrowLeft, Clock, Edit3, Hash, Plus } from 'lucide-react';
+import { ArrowLeft, Clock, Edit3, Hash, Plus, X } from 'lucide-react';
 import { Workout, Exercise } from './WorkoutApp';
+import { DeleteConfirmDialog } from './DeleteConfirmDialog';
 
 interface WorkoutViewerProps {
   workout: Workout;
@@ -18,6 +18,12 @@ export const WorkoutViewer: React.FC<WorkoutViewerProps> = ({
   const [isEditingEndTime, setIsEditingEndTime] = useState(false);
   const [customStartTime, setCustomStartTime] = useState('');
   const [customEndTime, setCustomEndTime] = useState('');
+  const [deleteDialog, setDeleteDialog] = useState<{
+    isOpen: boolean;
+    type: 'set' | 'exercise';
+    exerciseId?: string;
+    setId?: string;
+  }>({ isOpen: false, type: 'set' });
 
   const formatDuration = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
@@ -140,6 +146,34 @@ export const WorkoutViewer: React.FC<WorkoutViewerProps> = ({
     return endTime;
   };
 
+  const deleteSet = (exerciseId: string, setId: string) => {
+    const updatedWorkout = {
+      ...workout,
+      exercises: workout.exercises.map(ex => 
+        ex.id === exerciseId 
+          ? { ...ex, sets: ex.sets.filter(set => set.id !== setId) }
+          : ex
+      )
+    };
+
+    updateWorkoutStats(updatedWorkout);
+    setDeleteDialog({ isOpen: false, type: 'set' });
+  };
+
+  const deleteExercise = (exerciseId: string) => {
+    const updatedWorkout = {
+      ...workout,
+      exercises: workout.exercises.filter(ex => ex.id !== exerciseId)
+    };
+
+    updateWorkoutStats(updatedWorkout);
+    setDeleteDialog({ isOpen: false, type: 'exercise' });
+  };
+
+  const openDeleteDialog = (type: 'set' | 'exercise', exerciseId: string, setId?: string) => {
+    setDeleteDialog({ isOpen: true, type, exerciseId, setId });
+  };
+
   return (
     <div className="min-h-screen text-white flex flex-col animate-slide-in-right">
       {/* Header */}
@@ -252,8 +286,16 @@ export const WorkoutViewer: React.FC<WorkoutViewerProps> = ({
       <div className="flex-1 overflow-y-auto px-6 pb-6">
         <div className="space-y-3">
           {workout.exercises.map((exercise) => (
-            <div key={exercise.id} className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20 animate-scale-in">
-              <div className="mb-3">
+            <div key={exercise.id} className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20 animate-scale-in relative">
+              {/* Exercise delete button */}
+              <button
+                onClick={() => openDeleteDialog('exercise', exercise.id)}
+                className="absolute top-2 right-2 text-red-400 hover:text-red-300 p-1"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              <div className="mb-3 pr-8">
                 <h3 className="text-lg font-semibold text-white">{exercise.name}</h3>
                 <p className="text-purple-200 text-sm">{exercise.muscleGroup}</p>
               </div>
@@ -261,14 +303,22 @@ export const WorkoutViewer: React.FC<WorkoutViewerProps> = ({
               {/* Sets */}
               <div className="space-y-2 mb-3">
                 {exercise.sets.map((set, index) => (
-                  <div key={set.id} className="bg-white/10 rounded-lg p-3">
+                  <div key={set.id} className="bg-white/10 rounded-lg p-3 relative">
+                    {/* Set delete button */}
+                    <button
+                      onClick={() => openDeleteDialog('set', exercise.id, set.id)}
+                      className="absolute top-2 right-2 text-red-400 hover:text-red-300 p-1"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+
                     <div className="flex items-center space-x-2 mb-3">
                       <Hash className="w-3 h-3 text-purple-400" />
                       <span className="text-xs font-medium text-purple-200">Set {index + 1}</span>
                     </div>
                     
                     {/* Weight, Reps, and Notes on same row */}
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-3 pr-8">
                       <div className="flex items-center space-x-1">
                         <input
                           type="number"
@@ -332,6 +382,25 @@ export const WorkoutViewer: React.FC<WorkoutViewerProps> = ({
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmDialog
+        isOpen={deleteDialog.isOpen}
+        onClose={() => setDeleteDialog({ isOpen: false, type: 'set' })}
+        onConfirm={() => {
+          if (deleteDialog.type === 'set' && deleteDialog.exerciseId && deleteDialog.setId) {
+            deleteSet(deleteDialog.exerciseId, deleteDialog.setId);
+          } else if (deleteDialog.type === 'exercise' && deleteDialog.exerciseId) {
+            deleteExercise(deleteDialog.exerciseId);
+          }
+        }}
+        title={deleteDialog.type === 'set' ? 'Delete Set' : 'Delete Exercise'}
+        message={deleteDialog.type === 'set' 
+          ? 'Are you sure you want to delete this set? This action cannot be undone.' 
+          : 'Are you sure you want to delete this exercise? This will remove all sets and cannot be undone.'
+        }
+        confirmText={deleteDialog.type === 'set' ? 'Delete Set' : 'Delete Exercise'}
+      />
     </div>
   );
 };

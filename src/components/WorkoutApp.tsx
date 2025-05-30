@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { MainDashboard } from './MainDashboard';
 import { ActiveWorkout } from './ActiveWorkout';
@@ -101,6 +100,10 @@ export const WorkoutApp: React.FC = () => {
     setCurrentWorkout(updatedWorkout);
   };
 
+  const deleteWorkout = (workoutId: string) => {
+    setWorkoutHistory(prev => prev.filter(w => w.id !== workoutId));
+  };
+
   const renderScreen = () => {
     switch (currentScreen) {
       case 'dashboard':
@@ -109,6 +112,7 @@ export const WorkoutApp: React.FC = () => {
             workoutHistory={workoutHistory}
             onStartWorkout={startNewWorkout}
             onViewWorkout={viewWorkout}
+            onDeleteWorkout={deleteWorkout}
           />
         );
       case 'workout':

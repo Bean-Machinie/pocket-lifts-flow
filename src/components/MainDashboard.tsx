@@ -1,18 +1,26 @@
-import React from 'react';
-import { Plus, Clock, TrendingUp } from 'lucide-react';
+import React, { useState } from 'react';
+import { Plus, Clock, TrendingUp, X } from 'lucide-react';
 import { Workout } from './WorkoutApp';
+import { DeleteConfirmDialog } from './DeleteConfirmDialog';
 
 interface MainDashboardProps {
   workoutHistory: Workout[];
   onStartWorkout: () => void;
   onViewWorkout: (workout: Workout) => void;
+  onDeleteWorkout: (workoutId: string) => void;
 }
 
 export const MainDashboard: React.FC<MainDashboardProps> = ({ 
   workoutHistory, 
   onStartWorkout,
-  onViewWorkout
+  onViewWorkout,
+  onDeleteWorkout
 }) => {
+  const [deleteDialog, setDeleteDialog] = useState<{
+    isOpen: boolean;
+    workoutId?: string;
+  }>({ isOpen: false });
+
   const formatDuration = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
@@ -26,6 +34,17 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({
       hour: '2-digit',
       minute: '2-digit'
     }).format(date);
+  };
+
+  const openDeleteDialog = (workoutId: string) => {
+    setDeleteDialog({ isOpen: true, workoutId });
+  };
+
+  const handleDeleteWorkout = () => {
+    if (deleteDialog.workoutId) {
+      onDeleteWorkout(deleteDialog.workoutId);
+      setDeleteDialog({ isOpen: false });
+    }
   };
 
   return (
@@ -78,49 +97,74 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({
         ) : (
           <div className="space-y-3">
             {workoutHistory.slice(0, 5).map((workout) => (
-              <button
+              <div
                 key={workout.id}
-                onClick={() => onViewWorkout(workout)}
-                className="w-full bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 transform transition-all duration-200 hover:bg-white/15 hover:scale-[1.02] text-left"
+                className="w-full bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 transform transition-all duration-200 hover:bg-white/15 hover:scale-[1.02] relative"
               >
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <p className="text-white font-medium">
-                      {formatDate(workout.startTime)}
-                    </p>
-                    <p className="text-purple-200 text-sm">
-                      {workout.exercises.length} exercises
-                    </p>
+                {/* Delete button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openDeleteDialog(workout.id);
+                  }}
+                  className="absolute top-3 right-3 text-red-400 hover:text-red-300 p-1"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+
+                <button
+                  onClick={() => onViewWorkout(workout)}
+                  className="w-full text-left pr-8"
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <p className="text-white font-medium">
+                        {formatDate(workout.startTime)}
+                      </p>
+                      <p className="text-purple-200 text-sm">
+                        {workout.exercises.length} exercises
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-blue-400 font-semibold">
+                        {formatDuration(workout.duration)}
+                      </p>
+                      <p className="text-purple-200 text-sm">
+                        {workout.totalSets} sets
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-blue-400 font-semibold">
-                      {formatDuration(workout.duration)}
-                    </p>
-                    <p className="text-purple-200 text-sm">
-                      {workout.totalSets} sets
-                    </p>
+                  <div className="flex space-x-2">
+                    {workout.exercises.slice(0, 3).map((exercise, index) => (
+                      <span
+                        key={index}
+                        className="bg-purple-600/30 text-purple-200 px-2 py-1 rounded-lg text-xs"
+                      >
+                        {exercise.name}
+                      </span>
+                    ))}
+                    {workout.exercises.length > 3 && (
+                      <span className="text-purple-300 text-xs py-1">
+                        +{workout.exercises.length - 3} more
+                      </span>
+                    )}
                   </div>
-                </div>
-                <div className="flex space-x-2">
-                  {workout.exercises.slice(0, 3).map((exercise, index) => (
-                    <span
-                      key={index}
-                      className="bg-purple-600/30 text-purple-200 px-2 py-1 rounded-lg text-xs"
-                    >
-                      {exercise.name}
-                    </span>
-                  ))}
-                  {workout.exercises.length > 3 && (
-                    <span className="text-purple-300 text-xs py-1">
-                      +{workout.exercises.length - 3} more
-                    </span>
-                  )}
-                </div>
-              </button>
+                </button>
+              </div>
             ))}
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmDialog
+        isOpen={deleteDialog.isOpen}
+        onClose={() => setDeleteDialog({ isOpen: false })}
+        onConfirm={handleDeleteWorkout}
+        title="Delete Workout"
+        message="Are you sure you want to delete this workout? This action cannot be undone."
+        confirmText="Delete Workout"
+      />
     </div>
   );
 };
