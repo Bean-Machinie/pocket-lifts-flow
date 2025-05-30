@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Plus, Clock, ArrowLeft, Hash, X } from 'lucide-react';
 import { Workout, Exercise } from './WorkoutApp';
@@ -177,7 +178,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
     <div className="min-h-screen text-white flex flex-col animate-slide-in-right">
       {/* Sticky Header */}
       <div className="sticky top-0 z-10 bg-gradient-to-b from-purple-900 via-purple-900 to-purple-900/95 backdrop-blur-sm border-b border-white/10">
-        <div className="flex justify-between items-center p-6 pb-4">
+        <div className="flex justify-between items-center p-6">
           <div className="flex items-center space-x-3">
             <button
               onClick={onBack}
@@ -219,9 +220,12 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
             <span className="text-sm font-medium">Finish</span>
           </button>
         </div>
+      </div>
 
-        {/* Stats Card */}
-        <div className="px-6 pb-4">
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto px-6 pb-24">
+        {/* Stats Card - Now scrollable */}
+        <div className="mt-4 mb-6">
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
             {/* Duration - Centered at top */}
             <div className="text-center mb-4">
@@ -242,10 +246,8 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Scrollable Exercises */}
-      <div className="flex-1 overflow-y-auto px-6 pb-24">
+        {/* Exercises */}
         <div className="space-y-3">
           {workout.exercises.map((exercise) => (
             <div key={exercise.id} className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20 animate-scale-in relative">
