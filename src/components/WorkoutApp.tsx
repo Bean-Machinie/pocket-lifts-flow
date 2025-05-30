@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { MainDashboard } from './MainDashboard';
 import { ActiveWorkout } from './ActiveWorkout';
 import { ExerciseSelector } from './ExerciseSelector';
+import { WorkoutViewer } from './WorkoutViewer';
 
 export interface Exercise {
   id: string;
@@ -28,11 +29,12 @@ export interface Workout {
   totalWeight: number;
 }
 
-export type AppScreen = 'dashboard' | 'workout' | 'exercise-selector';
+export type AppScreen = 'dashboard' | 'workout' | 'exercise-selector' | 'workout-viewer';
 
 export const WorkoutApp: React.FC = () => {
   const [currentScreen, setCurrentScreen] = useState<AppScreen>('dashboard');
   const [currentWorkout, setCurrentWorkout] = useState<Workout | null>(null);
+  const [viewingWorkout, setViewingWorkout] = useState<Workout | null>(null);
   const [workoutHistory, setWorkoutHistory] = useState<Workout[]>([]);
 
   const startNewWorkout = () => {
@@ -54,6 +56,19 @@ export const WorkoutApp: React.FC = () => {
       setCurrentWorkout(null);
     }
     setCurrentScreen('dashboard');
+  };
+
+  const viewWorkout = (workout: Workout) => {
+    setViewingWorkout(workout);
+    setCurrentScreen('workout-viewer');
+  };
+
+  const updateViewingWorkout = (updatedWorkout: Workout) => {
+    setViewingWorkout(updatedWorkout);
+    // Update the workout in history
+    setWorkoutHistory(prev => 
+      prev.map(w => w.id === updatedWorkout.id ? updatedWorkout : w)
+    );
   };
 
   const addExercise = (exerciseName: string, muscleGroup: string) => {
@@ -93,6 +108,7 @@ export const WorkoutApp: React.FC = () => {
           <MainDashboard
             workoutHistory={workoutHistory}
             onStartWorkout={startNewWorkout}
+            onViewWorkout={viewWorkout}
           />
         );
       case 'workout':
@@ -102,6 +118,7 @@ export const WorkoutApp: React.FC = () => {
             onUpdateWorkout={updateWorkout}
             onEndWorkout={endWorkout}
             onAddExercise={() => setCurrentScreen('exercise-selector')}
+            onBack={() => setCurrentScreen('dashboard')}
           />
         );
       case 'exercise-selector':
@@ -109,6 +126,14 @@ export const WorkoutApp: React.FC = () => {
           <ExerciseSelector
             onSelectExercise={addExercise}
             onBack={() => setCurrentScreen('workout')}
+          />
+        );
+      case 'workout-viewer':
+        return (
+          <WorkoutViewer
+            workout={viewingWorkout!}
+            onBack={() => setCurrentScreen('dashboard')}
+            onUpdateWorkout={updateViewingWorkout}
           />
         );
       default:

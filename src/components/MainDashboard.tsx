@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Plus, Clock, TrendingUp } from 'lucide-react';
 import { Workout } from './WorkoutApp';
@@ -6,11 +5,13 @@ import { Workout } from './WorkoutApp';
 interface MainDashboardProps {
   workoutHistory: Workout[];
   onStartWorkout: () => void;
+  onViewWorkout: (workout: Workout) => void;
 }
 
 export const MainDashboard: React.FC<MainDashboardProps> = ({ 
   workoutHistory, 
-  onStartWorkout 
+  onStartWorkout,
+  onViewWorkout
 }) => {
   const formatDuration = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
@@ -77,9 +78,10 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({
         ) : (
           <div className="space-y-3">
             {workoutHistory.slice(0, 5).map((workout) => (
-              <div
+              <button
                 key={workout.id}
-                className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 transform transition-all duration-200 hover:bg-white/15"
+                onClick={() => onViewWorkout(workout)}
+                className="w-full bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 transform transition-all duration-200 hover:bg-white/15 hover:scale-[1.02] text-left"
               >
                 <div className="flex justify-between items-start mb-2">
                   <div>
@@ -114,7 +116,7 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({
                     </span>
                   )}
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         )}
