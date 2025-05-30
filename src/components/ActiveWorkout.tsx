@@ -196,62 +196,62 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
 
       {/* Scrollable Exercises */}
       <div className="flex-1 overflow-y-auto px-6 pb-24">
-        <div className="space-y-4">
+        <div className="space-y-3">
           {workout.exercises.map((exercise) => (
-            <div key={exercise.id} className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 animate-scale-in">
-              <div className="mb-4">
+            <div key={exercise.id} className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20 animate-scale-in">
+              <div className="mb-3">
                 <h3 className="text-lg font-semibold text-white">{exercise.name}</h3>
                 <p className="text-purple-200 text-sm">{exercise.muscleGroup}</p>
               </div>
 
               {/* Sets */}
-              <div className="space-y-3 mb-4">
+              <div className="space-y-2 mb-3">
                 {exercise.sets.map((set, index) => (
-                  <div key={set.id} className="bg-white/10 rounded-xl p-4">
-                    <div className="flex items-center space-x-2 mb-3">
-                      <Hash className="w-4 h-4 text-purple-400" />
-                      <span className="text-sm font-medium text-purple-200">Set {index + 1}</span>
+                  <div key={set.id} className="bg-white/10 rounded-lg p-3">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Hash className="w-3 h-3 text-purple-400" />
+                      <span className="text-xs font-medium text-purple-200">Set {index + 1}</span>
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-4 mb-3">
+                    <div className="grid grid-cols-2 gap-3 mb-2">
                       <div>
-                        <label className="block text-xs text-gray-300 mb-2 font-medium">Weight (kg)</label>
+                        <label className="block text-xs text-gray-300 mb-1 font-medium">Weight (kg)</label>
                         <input
                           type="number"
                           placeholder="0"
                           value={set.weight || ''}
                           onChange={(e) => updateSet(exercise.id, set.id, 'weight', parseFloat(e.target.value) || 0)}
-                          className="w-full bg-white/20 rounded-lg px-4 py-3 text-white text-center text-xl font-bold border border-white/20 focus:border-purple-400 focus:outline-none"
+                          className="w-full bg-white/20 rounded-lg px-3 py-2 text-white text-center text-lg font-bold border border-white/20 focus:border-purple-400 focus:outline-none"
                         />
                       </div>
                       
                       <div>
-                        <label className="block text-xs text-gray-300 mb-2 font-medium">Reps</label>
+                        <label className="block text-xs text-gray-300 mb-1 font-medium">Reps</label>
                         <input
                           type="number"
                           placeholder="0"
                           value={set.reps || ''}
                           onChange={(e) => updateSet(exercise.id, set.id, 'reps', parseInt(e.target.value) || 0)}
-                          className="w-full bg-white/20 rounded-lg px-4 py-3 text-white text-center text-xl font-bold border border-white/20 focus:border-purple-400 focus:outline-none"
+                          className="w-full bg-white/20 rounded-lg px-3 py-2 text-white text-center text-lg font-bold border border-white/20 focus:border-purple-400 focus:outline-none"
                         />
                       </div>
                     </div>
                     
                     <div>
-                      <label className="block text-xs text-gray-300 mb-2 font-medium">Notes (optional)</label>
+                      <label className="block text-xs text-gray-300 mb-1 font-medium">Notes (optional)</label>
                       <input
                         type="text"
                         placeholder="Add notes..."
                         value={set.notes || ''}
                         onChange={(e) => updateSet(exercise.id, set.id, 'notes', e.target.value)}
-                        className="w-full bg-white/20 rounded-lg px-4 py-2 text-white text-sm border border-white/20 focus:border-purple-400 focus:outline-none"
+                        className="w-full bg-white/20 rounded-lg px-3 py-1.5 text-white text-sm border border-white/20 focus:border-purple-400 focus:outline-none"
                       />
                     </div>
                   </div>
                 ))}
                 
                 {exercise.sets.length === 0 && (
-                  <p className="text-purple-300 text-sm text-center py-4">
+                  <p className="text-purple-300 text-sm text-center py-3">
                     No sets yet. Add your first set!
                   </p>
                 )}
@@ -260,10 +260,10 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
               {/* Add Set Button */}
               <button
                 onClick={() => addSet(exercise.id)}
-                className="w-full bg-purple-600/30 text-purple-200 border border-purple-400/30 rounded-xl p-3 flex items-center justify-center space-x-2 hover:bg-purple-600/40 transition-colors"
+                className="w-full bg-purple-600/30 text-purple-200 border border-purple-400/30 rounded-lg p-2.5 flex items-center justify-center space-x-2 hover:bg-purple-600/40 transition-colors"
               >
                 <Plus className="w-4 h-4" />
-                <span className="font-medium">Add Set</span>
+                <span className="font-medium text-sm">Add Set</span>
               </button>
             </div>
           ))}
