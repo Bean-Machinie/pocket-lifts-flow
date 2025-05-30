@@ -172,17 +172,17 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
       </div>
 
       {/* Stats */}
-      <div className="flex flex-col gap-4 mb-6">
-        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-center border border-white/20">
-          <div className="text-2xl font-bold text-purple-400">{formatDuration(duration)}</div>
+      <div className="flex flex-col gap-2 mb-6">
+        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center border border-white/20">
+          <div className="text-xl font-bold text-purple-400">{formatDuration(duration)}</div>
           <div className="text-xs text-purple-200">Duration</div>
         </div>
-        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-center border border-white/20">
-          <div className="text-2xl font-bold text-blue-400">{workout.totalSets}</div>
+        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center border border-white/20">
+          <div className="text-xl font-bold text-blue-400">{workout.totalSets}</div>
           <div className="text-xs text-blue-200">Total Sets</div>
         </div>
-        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-center border border-white/20">
-          <div className="text-2xl font-bold text-green-400">{workout.totalWeight.toFixed(0)}kg</div>
+        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center border border-white/20">
+          <div className="text-xl font-bold text-green-400">{workout.totalWeight.toFixed(0)}kg</div>
           <div className="text-xs text-green-200">Total Weight</div>
         </div>
       </div>
