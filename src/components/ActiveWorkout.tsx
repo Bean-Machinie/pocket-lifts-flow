@@ -13,6 +13,9 @@ interface ActiveWorkoutProps {
   onBack: () => void;
 }
 
+// Global scroll position storage
+const scrollPositions = new Map<string, number>();
+
 export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
   workout,
   onUpdateWorkout,
@@ -30,8 +33,46 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
   
   const exerciseRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const setRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const previousExerciseCount = useRef(0);
   const previousSetCounts = useRef<{ [key: string]: number }>({});
+  const isInitialMount = useRef(true);
+  const shouldAutoScroll = useRef(false);
+
+  // Save scroll position when component unmounts or workout changes
+  useEffect(() => {
+    return () => {
+      if (workout && scrollContainerRef.current) {
+        scrollPositions.set(workout.id, scrollContainerRef.current.scrollTop);
+      }
+    };
+  }, [workout]);
+
+  // Restore scroll position on mount
+  useEffect(() => {
+    if (workout && scrollContainerRef.current && isInitialMount.current) {
+      const savedPosition = scrollPositions.get(workout.id);
+      if (savedPosition !== undefined) {
+        scrollContainerRef.current.scrollTop = savedPosition;
+      }
+      isInitialMount.current = false;
+    }
+  }, [workout]);
+
+  // Save scroll position before navigation
+  const handleAddExercise = () => {
+    if (workout && scrollContainerRef.current) {
+      scrollPositions.set(workout.id, scrollContainerRef.current.scrollTop);
+    }
+    onAddExercise();
+  };
+
+  const handleBack = () => {
+    if (workout && scrollContainerRef.current) {
+      scrollPositions.set(workout.id, scrollContainerRef.current.scrollTop);
+    }
+    onBack();
+  };
 
   useEffect(() => {
     if (!workout) return;
@@ -45,24 +86,26 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
     return () => clearInterval(interval);
   }, [workout]);
 
-  // Track when new exercises or sets are added
+  // Track when new exercises or sets are added and auto-scroll only then
   useEffect(() => {
-    if (!workout) return;
+    if (!workout || isInitialMount.current) return;
 
     const currentExerciseCount = workout.exercises.length;
     
     // Check if a new exercise was added
     if (currentExerciseCount > previousExerciseCount.current) {
+      shouldAutoScroll.current = true;
       const newestExercise = workout.exercises[currentExerciseCount - 1];
       setTimeout(() => {
         const element = exerciseRefs.current[newestExercise.id];
-        if (element) {
+        if (element && shouldAutoScroll.current) {
           element.scrollIntoView({ 
             behavior: 'smooth', 
             block: 'center',
             inline: 'nearest'
           });
         }
+        shouldAutoScroll.current = false;
       }, 100);
     }
     
@@ -72,16 +115,18 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
       const previousSetCount = previousSetCounts.current[exercise.id] || 0;
       
       if (currentSetCount > previousSetCount) {
+        shouldAutoScroll.current = true;
         const newestSet = exercise.sets[currentSetCount - 1];
         setTimeout(() => {
           const element = setRefs.current[newestSet.id];
-          if (element) {
+          if (element && shouldAutoScroll.current) {
             element.scrollIntoView({ 
               behavior: 'smooth', 
               block: 'center',
               inline: 'nearest'
             });
           }
+          shouldAutoScroll.current = false;
         }, 100);
       }
       
@@ -231,7 +276,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
         <div className="flex justify-between items-center p-6">
           <div className="flex items-center space-x-3">
             <button
-              onClick={onBack}
+              onClick={handleBack}
               className="bg-white/10 text-white p-2 rounded-xl border border-white/20"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -272,8 +317,11 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
         </div>
       </div>
 
-      {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto px-6 pb-24">
+      {/* Scrollable Content with ref */}
+      <div 
+        ref={scrollContainerRef}
+        className="flex-1 overflow-y-auto px-6 pb-24"
+      >
         {/* Stats Card - Now scrollable */}
         <div className="mt-4 mb-6">
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
@@ -408,7 +456,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
       {/* Fixed Add Exercise Button */}
       <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-purple-900 via-purple-900/95 to-transparent">
         <button
-          onClick={onAddExercise}
+          onClick={handleAddExercise}
           className="w-full bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl p-4 shadow-lg transform transition-all duration-200 hover:scale-105 active:scale-95"
         >
           <div className="flex items-center justify-center space-x-2">
