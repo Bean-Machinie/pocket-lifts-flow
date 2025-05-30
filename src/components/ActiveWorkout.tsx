@@ -1,0 +1,289 @@
+
+import React, { useState, useEffect } from 'react';
+import { Plus, Clock, X, Hash, Edit3 } from 'lucide-react';
+import { Workout, Exercise } from './WorkoutApp';
+
+interface ActiveWorkoutProps {
+  workout: Workout | null;
+  onUpdateWorkout: (workout: Workout) => void;
+  onEndWorkout: () => void;
+  onAddExercise: () => void;
+}
+
+export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
+  workout,
+  onUpdateWorkout,
+  onEndWorkout,
+  onAddExercise
+}) => {
+  const [duration, setDuration] = useState(0);
+  const [isEditingTime, setIsEditingTime] = useState(false);
+  const [customStartTime, setCustomStartTime] = useState('');
+
+  useEffect(() => {
+    if (!workout) return;
+
+    const interval = setInterval(() => {
+      const now = new Date();
+      const elapsed = Math.floor((now.getTime() - workout.startTime.getTime()) / 1000);
+      setDuration(elapsed);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [workout]);
+
+  const formatDuration = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString('en-US', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: false 
+    });
+  };
+
+  const addSet = (exerciseId: string) => {
+    if (!workout) return;
+
+    const newSet = {
+      id: Date.now().toString(),
+      weight: 0,
+      reps: 0,
+      notes: '',
+      completed: false
+    };
+
+    const updatedWorkout = {
+      ...workout,
+      exercises: workout.exercises.map(ex => 
+        ex.id === exerciseId 
+          ? { ...ex, sets: [...ex.sets, newSet] }
+          : ex
+      )
+    };
+
+    updateWorkoutStats(updatedWorkout);
+  };
+
+  const updateSet = (exerciseId: string, setId: string, field: string, value: any) => {
+    if (!workout) return;
+
+    const updatedWorkout = {
+      ...workout,
+      exercises: workout.exercises.map(ex => 
+        ex.id === exerciseId 
+          ? {
+              ...ex,
+              sets: ex.sets.map(set => 
+                set.id === setId 
+                  ? { ...set, [field]: value }
+                  : set
+              )
+            }
+          : ex
+      )
+    };
+
+    updateWorkoutStats(updatedWorkout);
+  };
+
+  const updateWorkoutStats = (updatedWorkout: Workout) => {
+    const totalSets = updatedWorkout.exercises.reduce((sum, ex) => sum + ex.sets.length, 0);
+    const totalWeight = updatedWorkout.exercises.reduce((sum, ex) => 
+      sum + ex.sets.reduce((setSum, set) => setSum + (set.weight * set.reps), 0), 0
+    );
+
+    const finalWorkout = {
+      ...updatedWorkout,
+      totalSets,
+      totalWeight,
+      duration
+    };
+
+    onUpdateWorkout(finalWorkout);
+  };
+
+  const updateStartTime = () => {
+    if (!workout || !customStartTime) return;
+
+    const [hours, minutes] = customStartTime.split(':');
+    const newStartTime = new Date();
+    newStartTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+
+    const updatedWorkout = {
+      ...workout,
+      startTime: newStartTime
+    };
+
+    onUpdateWorkout(updatedWorkout);
+    setIsEditingTime(false);
+    setCustomStartTime('');
+  };
+
+  if (!workout) return null;
+
+  return (
+    <div className="min-h-screen text-white p-6 animate-slide-in-right">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-purple-200">Active Workout</h1>
+          <div className="flex items-center space-x-2 mt-1">
+            <Clock className="w-4 h-4 text-blue-400" />
+            {isEditingTime ? (
+              <div className="flex items-center space-x-2">
+                <input
+                  type="time"
+                  value={customStartTime}
+                  onChange={(e) => setCustomStartTime(e.target.value)}
+                  className="bg-white/20 rounded px-2 py-1 text-sm"
+                />
+                <button onClick={updateStartTime} className="text-green-400 text-sm">
+                  Save
+                </button>
+                <button onClick={() => setIsEditingTime(false)} className="text-red-400 text-sm">
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <span className="text-blue-300 text-sm">Started at {formatTime(workout.startTime)}</span>
+                <button onClick={() => {
+                  setIsEditingTime(true);
+                  setCustomStartTime(formatTime(workout.startTime));
+                }}>
+                  <Edit3 className="w-3 h-3 text-blue-400" />
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+        <button
+          onClick={onEndWorkout}
+          className="bg-red-500/20 text-red-400 p-2 rounded-xl border border-red-400/30"
+        >
+          <X className="w-6 h-6" />
+        </button>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-center border border-white/20">
+          <div className="text-2xl font-bold text-purple-400">{formatDuration(duration)}</div>
+          <div className="text-xs text-purple-200">Duration</div>
+        </div>
+        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-center border border-white/20">
+          <div className="text-2xl font-bold text-blue-400">{workout.totalSets}</div>
+          <div className="text-xs text-blue-200">Total Sets</div>
+        </div>
+        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-center border border-white/20">
+          <div className="text-2xl font-bold text-green-400">{workout.totalWeight.toFixed(0)}kg</div>
+          <div className="text-xs text-green-200">Total Weight</div>
+        </div>
+      </div>
+
+      {/* Add Exercise Button */}
+      <button
+        onClick={onAddExercise}
+        className="w-full bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl p-4 mb-6 shadow-lg transform transition-all duration-200 hover:scale-105 active:scale-95"
+      >
+        <div className="flex items-center justify-center space-x-2">
+          <Plus className="w-5 h-5" />
+          <span className="font-semibold">Add Exercise</span>
+        </div>
+      </button>
+
+      {/* Exercises */}
+      <div className="space-y-4">
+        {workout.exercises.map((exercise) => (
+          <div key={exercise.id} className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 animate-scale-in">
+            <div className="flex justify-between items-center mb-3">
+              <div>
+                <h3 className="text-lg font-semibold text-white">{exercise.name}</h3>
+                <p className="text-purple-200 text-sm">{exercise.muscleGroup}</p>
+              </div>
+              <button
+                onClick={() => addSet(exercise.id)}
+                className="bg-purple-600 text-white p-2 rounded-xl"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Sets */}
+            <div className="space-y-2">
+              {exercise.sets.map((set, index) => (
+                <div key={set.id} className="bg-white/10 rounded-xl p-3 grid grid-cols-6 gap-2 items-center">
+                  <div className="flex items-center space-x-1">
+                    <Hash className="w-3 h-3 text-purple-400" />
+                    <span className="text-sm text-purple-200">{index + 1}</span>
+                  </div>
+                  
+                  <div>
+                    <input
+                      type="number"
+                      placeholder="kg"
+                      value={set.weight || ''}
+                      onChange={(e) => updateSet(exercise.id, set.id, 'weight', parseFloat(e.target.value) || 0)}
+                      className="w-full bg-white/20 rounded-lg px-2 py-1 text-sm text-center"
+                    />
+                    <label className="text-xs text-gray-300">Weight</label>
+                  </div>
+                  
+                  <div>
+                    <input
+                      type="number"
+                      placeholder="reps"
+                      value={set.reps || ''}
+                      onChange={(e) => updateSet(exercise.id, set.id, 'reps', parseInt(e.target.value) || 0)}
+                      className="w-full bg-white/20 rounded-lg px-2 py-1 text-sm text-center"
+                    />
+                    <label className="text-xs text-gray-300">Reps</label>
+                  </div>
+                  
+                  <div className="col-span-2">
+                    <input
+                      type="text"
+                      placeholder="Notes"
+                      value={set.notes || ''}
+                      onChange={(e) => updateSet(exercise.id, set.id, 'notes', e.target.value)}
+                      className="w-full bg-white/20 rounded-lg px-2 py-1 text-sm"
+                    />
+                    <label className="text-xs text-gray-300">Notes</label>
+                  </div>
+                  
+                  <div>
+                    <input
+                      type="checkbox"
+                      checked={set.completed}
+                      onChange={(e) => updateSet(exercise.id, set.id, 'completed', e.target.checked)}
+                      className="w-4 h-4 rounded"
+                    />
+                  </div>
+                </div>
+              ))}
+              
+              {exercise.sets.length === 0 && (
+                <p className="text-purple-300 text-sm text-center py-2">
+                  No sets yet. Add your first set!
+                </p>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {workout.exercises.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-purple-200 mb-2">No exercises added yet</p>
+          <p className="text-purple-300 text-sm">Tap "Add Exercise" to get started!</p>
+        </div>
+      )}
+    </div>
+  );
+};
