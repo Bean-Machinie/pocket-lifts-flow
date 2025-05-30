@@ -59,11 +59,20 @@ export const WorkoutApp: React.FC = () => {
   const addExercise = (exerciseName: string, muscleGroup: string) => {
     if (!currentWorkout) return;
     
+    // Create the first set automatically with default values
+    const firstSet = {
+      id: Date.now().toString(),
+      weight: 0,
+      reps: 0,
+      notes: '',
+      completed: false
+    };
+    
     const newExercise: Exercise = {
       id: Date.now().toString(),
       name: exerciseName,
       muscleGroup,
-      sets: []
+      sets: [firstSet]
     };
     
     setCurrentWorkout(prev => prev ? {
