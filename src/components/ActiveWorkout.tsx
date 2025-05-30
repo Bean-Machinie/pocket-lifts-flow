@@ -172,7 +172,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="flex flex-col gap-4 mb-6">
         <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-center border border-white/20">
           <div className="text-2xl font-bold text-purple-400">{formatDuration(duration)}</div>
           <div className="text-xs text-purple-200">Duration</div>
