@@ -268,7 +268,7 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
             }} className="p-1 text-red-400 hover:text-red-300">
                       <X className="w-4 h-4" />
                     </button>}
-                  <ChevronRight className="w-5 h-5 text-white-400" />
+                  <ChevronRight className="w-5 h-5text-white/40" />
                 </div>
               </div>
             </button>)}
@@ -277,7 +277,7 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
           <button onClick={() => setIsAddExerciseOpen(true)} className="w-full bg-white/5 backdrop-blur-sm rounded-2xl p-4 text-left border-2 border-dashed border-white/20 transform transition-all duration-200 hover:bg-white/10 hover:scale-105 active:scale-95">
             <div className="flex justify-between items-center">
               <span className="text-lg font-medium text-white">+ Add Exercise</span>
-              <Plus className="w-5 h-5 text-white" />
+              <Plus className="w-5 h-5 text-white/40" />
             </div>
           </button>
         </div>}
