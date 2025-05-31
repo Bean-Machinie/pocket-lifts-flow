@@ -276,14 +276,18 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
         {/* Stats Card - Now scrollable */}
         <div className="mt-4 mb-6">
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-            {/* Duration - Centered at top */}
+            {/* Duration - Centered at top with white color */}
             <div className="text-center mb-4">
-              <div className="text-3xl font-bold text-purple-400">{formatDuration(duration)}</div>
+              <div className="text-3xl font-bold text-white">{formatDuration(duration)}</div>
               <div className="text-sm text-purple-200">Duration</div>
             </div>
             
-            {/* Sets, Weight, and Exercises - Three columns underneath */}
+            {/* Nr. Exercises, Total Sets, Total Weight - Three columns in this order */}
             <div className="grid grid-cols-3 gap-4">
+              <div className="text-center">
+                <div className="text-xl font-bold text-orange-400">{workout.exercises.length}</div>
+                <div className="text-xs text-orange-200">Nr. Exercises</div>
+              </div>
               <div className="text-center">
                 <div className="text-xl font-bold text-blue-400">{workout.totalSets}</div>
                 <div className="text-xs text-blue-200">Total Sets</div>
@@ -291,10 +295,6 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
               <div className="text-center">
                 <div className="text-xl font-bold text-green-400">{formatTotalWeight(workout.totalWeight)}</div>
                 <div className="text-xs text-green-200">Total Weight</div>
-              </div>
-              <div className="text-center">
-                <div className="text-xl font-bold text-orange-400">{workout.exercises.length}</div>
-                <div className="text-xs text-orange-200">Nr. Exercises</div>
               </div>
             </div>
           </div>
