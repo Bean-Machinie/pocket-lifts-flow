@@ -79,7 +79,7 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({
         <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-slate-200 to-blue-300 bg-clip-text text-transparent ">
           Pocket Lifts
         </h1>
-        <p className="text-purple-200 text-lg">Track your fitness journey</p>
+        <p className="text-blue-300 text-lg">Track your fitness journey</p>
         
         {/* Settings Icon */}
         <button onClick={() => setIsSettingsOpen(true)} className="absolute top-0 right-0 p-2 hover:bg-white/10 rounded-lg transition-colors">
