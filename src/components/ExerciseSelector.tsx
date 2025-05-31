@@ -3,20 +3,16 @@ import { ArrowLeft, ChevronRight, Plus, X } from 'lucide-react';
 import { AddMuscleGroupPanel } from './AddMuscleGroupPanel';
 import { AddExercisePanel } from './AddExercisePanel';
 import { DeleteConfirmDialog } from './DeleteConfirmDialog';
-
 interface ExerciseSelectorProps {
   onSelectExercise: (exerciseName: string, muscleGroup: string) => void;
   onBack: () => void;
 }
-
 interface MuscleGroup {
   name: string;
   exercises: string[];
   isCustom: boolean;
 }
-
 type MuscleGroups = Record<string, MuscleGroup>;
-
 const MUSCLE_GROUPS: MuscleGroups = {
   chest: {
     name: 'Chest',
@@ -55,14 +51,16 @@ const loadMuscleGroups = (): MuscleGroups => {
   try {
     const saved = localStorage.getItem('customMuscleGroups');
     const savedExercises = localStorage.getItem('customExercises');
-    
-    let groups = { ...MUSCLE_GROUPS };
-    
+    let groups = {
+      ...MUSCLE_GROUPS
+    };
     if (saved) {
       const customGroups = JSON.parse(saved);
-      groups = { ...groups, ...customGroups };
+      groups = {
+        ...groups,
+        ...customGroups
+      };
     }
-    
     if (savedExercises) {
       const customExercises = JSON.parse(savedExercises);
       Object.keys(customExercises).forEach(groupKey => {
@@ -71,7 +69,6 @@ const loadMuscleGroups = (): MuscleGroups => {
         }
       });
     }
-    
     return groups;
   } catch (error) {
     console.error('Error loading muscle groups:', error);
@@ -84,7 +81,6 @@ const saveCustomMuscleGroups = (muscleGroups: MuscleGroups) => {
   try {
     const customGroups: MuscleGroups = {};
     const customExercises: Record<string, string[]> = {};
-    
     Object.entries(muscleGroups).forEach(([key, group]) => {
       if (group.isCustom) {
         customGroups[key] = group;
@@ -97,14 +93,12 @@ const saveCustomMuscleGroups = (muscleGroups: MuscleGroups) => {
         }
       }
     });
-    
     localStorage.setItem('customMuscleGroups', JSON.stringify(customGroups));
     localStorage.setItem('customExercises', JSON.stringify(customExercises));
   } catch (error) {
     console.error('Error saving muscle groups:', error);
   }
 };
-
 export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
   onSelectExercise,
   onBack
@@ -125,7 +119,6 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
     groupName: '',
     type: 'group'
   });
-
   const handleMuscleGroupSelect = (groupKey: string) => {
     if (groupKey === 'add-muscle-group') {
       setIsAddPanelOpen(true);
@@ -133,13 +126,11 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
     }
     setSelectedMuscleGroup(groupKey);
   };
-
   const handleExerciseSelect = (exerciseName: string) => {
     if (selectedMuscleGroup && muscleGroups[selectedMuscleGroup]) {
       onSelectExercise(exerciseName, muscleGroups[selectedMuscleGroup].name);
     }
   };
-
   const handleBack = () => {
     if (selectedMuscleGroup) {
       setSelectedMuscleGroup(null);
@@ -147,7 +138,6 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
       onBack();
     }
   };
-
   const handleAddMuscleGroup = (name: string) => {
     const key = name.toLowerCase().replace(/\s+/g, '-');
     const updatedGroups = {
@@ -161,7 +151,6 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
     setMuscleGroups(updatedGroups);
     saveCustomMuscleGroups(updatedGroups);
   };
-
   const handleAddExercise = (exerciseName: string) => {
     if (selectedMuscleGroup && muscleGroups[selectedMuscleGroup]) {
       const updatedGroups = {
@@ -175,14 +164,20 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
       saveCustomMuscleGroups(updatedGroups);
     }
   };
-
   const handleDeleteMuscleGroup = (groupKey: string) => {
-    const { [groupKey]: deleted, ...remaining } = muscleGroups;
+    const {
+      [groupKey]: deleted,
+      ...remaining
+    } = muscleGroups;
     setMuscleGroups(remaining);
     saveCustomMuscleGroups(remaining);
-    setDeleteDialog({ isOpen: false, groupKey: '', groupName: '', type: 'group' });
+    setDeleteDialog({
+      isOpen: false,
+      groupKey: '',
+      groupName: '',
+      type: 'group'
+    });
   };
-
   const handleDeleteExercise = (groupKey: string, exerciseName: string) => {
     const updatedGroups = {
       ...muscleGroups,
@@ -193,78 +188,64 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
     };
     setMuscleGroups(updatedGroups);
     saveCustomMuscleGroups(updatedGroups);
-    setDeleteDialog({ isOpen: false, groupKey: '', groupName: '', type: 'exercise' });
+    setDeleteDialog({
+      isOpen: false,
+      groupKey: '',
+      groupName: '',
+      type: 'exercise'
+    });
   };
-
   const openDeleteDialog = (groupKey: string, groupName: string, exerciseName?: string) => {
-    setDeleteDialog({ 
-      isOpen: true, 
-      groupKey, 
-      groupName, 
+    setDeleteDialog({
+      isOpen: true,
+      groupKey,
+      groupName,
       exerciseName,
       type: exerciseName ? 'exercise' : 'group'
     });
   };
-
   const isCustomExercise = (groupKey: string, exerciseName: string) => {
     const originalExercises = MUSCLE_GROUPS[groupKey]?.exercises || [];
     return !originalExercises.includes(exerciseName);
   };
-
-  return (
-    <div className="min-h-screen text-white p-6 animate-[slide-in-right_0.4s_cubic-bezier(0.25,0.46,0.45,0.94)] will-change-transform">
+  return <div className="min-h-screen text-white p-6 animate-[slide-in-right_0.4s_cubic-bezier(0.25,0.46,0.45,0.94)] will-change-transform">
       {/* Header */}
       <div className="flex items-center space-x-4 mb-6">
         <button onClick={handleBack} className="p-2 rounded-xl bg-white/10 border border-white/20">
           <ArrowLeft className="w-6 h-6" />
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-purple-200">
+          <h1 className="text-2xl font-bold text-slate-200">
             {selectedMuscleGroup ? muscleGroups[selectedMuscleGroup]?.name : 'Select Exercise'}
           </h1>
-          <p className="text-purple-300 text-sm">
+          <p className="text-blue-300 text-sm">
             {selectedMuscleGroup ? 'Choose an exercise' : 'Choose a muscle group first'}
           </p>
         </div>
       </div>
 
       {/* Muscle Groups */}
-      {!selectedMuscleGroup && (
-        <div className="space-y-3">
-          {Object.entries(muscleGroups).map(([key, group]) => (
-            <button
-              key={key}
-              onClick={() => handleMuscleGroupSelect(key)}
-              className="w-full bg-white/5 backdrop-blur-sm rounded-xl p-4 text-left border border-white/10 transform transition-all duration-200 hover:bg-white/10 hover:scale-105 active:scale-95"
-            >
+      {!selectedMuscleGroup && <div className="space-y-3">
+          {Object.entries(muscleGroups).map(([key, group]) => <button key={key} onClick={() => handleMuscleGroupSelect(key)} className="w-full bg-white/5 backdrop-blur-sm rounded-xl p-4 text-left border border-white/10 transform transition-all duration-200 hover:bg-white/10 hover:scale-105 active:scale-95">
               <div className="flex justify-between items-center">
                 <div>
                   <h3 className="text-lg font-medium text-white">{group.name}</h3>
                   <p className="text-white/60 text-xs">{group.exercises.length} exercises</p>
                 </div>
                 <div className="flex items-center space-x-2">
-                  {group.isCustom && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openDeleteDialog(key, group.name);
-                      }}
-                      className="p-1 text-red-400 hover:text-red-300"
-                    >
+                  {group.isCustom && <button onClick={e => {
+              e.stopPropagation();
+              openDeleteDialog(key, group.name);
+            }} className="p-1 text-red-400 hover:text-red-300">
                       <X className="w-4 h-4" />
-                    </button>
-                  )}
+                    </button>}
                   <ChevronRight className="w-5 h-5 text-white/40" />
                 </div>
               </div>
-            </button>
-          ))}
+            </button>)}
           
           {/* Add Muscle Group Button */}
-          <button
-            onClick={() => handleMuscleGroupSelect('add-muscle-group')}
-            className="w-full bg-white/5 backdrop-blur-sm rounded-xl p-4 text-left border-2 border-dashed border-white/20 transform transition-all duration-200 hover:bg-white/10 hover:scale-105 active:scale-95"
-          >
+          <button onClick={() => handleMuscleGroupSelect('add-muscle-group')} className="w-full bg-white/5 backdrop-blur-sm rounded-xl p-4 text-left border-2 border-dashed border-white/20 transform transition-all duration-200 hover:bg-white/10 hover:scale-105 active:scale-95">
             <div className="flex justify-between items-center">
               <div>
                 <h3 className="text-lg font-medium text-white">+ Add Muscle Group</h3>
@@ -273,85 +254,52 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
               <Plus className="w-5 h-5 text-white/40" />
             </div>
           </button>
-        </div>
-      )}
+        </div>}
 
       {/* Exercises */}
-      {selectedMuscleGroup && muscleGroups[selectedMuscleGroup] && (
-        <div className="space-y-3 animate-[fade-in_0.4s_ease-out]">
-          {muscleGroups[selectedMuscleGroup].exercises.map((exercise) => (
-            <button
-              key={exercise}
-              onClick={() => handleExerciseSelect(exercise)}
-              className="w-full bg-white/5 backdrop-blur-sm rounded-2xl p-4 text-left border border-white/10 transform transition-all duration-200 hover:bg-white/10 hover:scale-105 active:scale-95"
-            >
+      {selectedMuscleGroup && muscleGroups[selectedMuscleGroup] && <div className="space-y-3 animate-[fade-in_0.4s_ease-out]">
+          {muscleGroups[selectedMuscleGroup].exercises.map(exercise => <button key={exercise} onClick={() => handleExerciseSelect(exercise)} className="w-full bg-white/5 backdrop-blur-sm rounded-2xl p-4 text-left border border-white/10 transform transition-all duration-200 hover:bg-white/10 hover:scale-105 active:scale-95">
               <div className="flex justify-between items-center">
                 <span className="text-lg font-medium text-white">{exercise}</span>
                 <div className="flex items-center space-x-2">
-                  {isCustomExercise(selectedMuscleGroup, exercise) && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openDeleteDialog(selectedMuscleGroup, muscleGroups[selectedMuscleGroup].name, exercise);
-                      }}
-                      className="p-1 text-red-400 hover:text-red-300"
-                    >
+                  {isCustomExercise(selectedMuscleGroup, exercise) && <button onClick={e => {
+              e.stopPropagation();
+              openDeleteDialog(selectedMuscleGroup, muscleGroups[selectedMuscleGroup].name, exercise);
+            }} className="p-1 text-red-400 hover:text-red-300">
                       <X className="w-4 h-4" />
-                    </button>
-                  )}
-                  <ChevronRight className="w-5 h-5 text-purple-400" />
+                    </button>}
+                  <ChevronRight className="w-5 h-5 text-white-400" />
                 </div>
               </div>
-            </button>
-          ))}
+            </button>)}
           
           {/* Add Exercise Button */}
-          <button
-            onClick={() => setIsAddExerciseOpen(true)}
-            className="w-full bg-white/5 backdrop-blur-sm rounded-2xl p-4 text-left border-2 border-dashed border-white/20 transform transition-all duration-200 hover:bg-white/10 hover:scale-105 active:scale-95"
-          >
+          <button onClick={() => setIsAddExerciseOpen(true)} className="w-full bg-white/5 backdrop-blur-sm rounded-2xl p-4 text-left border-2 border-dashed border-white/20 transform transition-all duration-200 hover:bg-white/10 hover:scale-105 active:scale-95">
             <div className="flex justify-between items-center">
               <span className="text-lg font-medium text-white">+ Add Exercise</span>
               <Plus className="w-5 h-5 text-white/40" />
             </div>
           </button>
-        </div>
-      )}
+        </div>}
 
       {/* Add Muscle Group Panel */}
-      <AddMuscleGroupPanel
-        isOpen={isAddPanelOpen}
-        onClose={() => setIsAddPanelOpen(false)}
-        onSave={handleAddMuscleGroup}
-      />
+      <AddMuscleGroupPanel isOpen={isAddPanelOpen} onClose={() => setIsAddPanelOpen(false)} onSave={handleAddMuscleGroup} />
 
       {/* Add Exercise Panel */}
-      <AddExercisePanel
-        isOpen={isAddExerciseOpen}
-        onClose={() => setIsAddExerciseOpen(false)}
-        onSave={handleAddExercise}
-        muscleGroupName={selectedMuscleGroup ? muscleGroups[selectedMuscleGroup]?.name : ''}
-      />
+      <AddExercisePanel isOpen={isAddExerciseOpen} onClose={() => setIsAddExerciseOpen(false)} onSave={handleAddExercise} muscleGroupName={selectedMuscleGroup ? muscleGroups[selectedMuscleGroup]?.name : ''} />
 
       {/* Delete Confirmation Dialog */}
-      <DeleteConfirmDialog
-        isOpen={deleteDialog.isOpen}
-        onClose={() => setDeleteDialog({ isOpen: false, groupKey: '', groupName: '', type: 'group' })}
-        onConfirm={() => {
-          if (deleteDialog.type === 'exercise' && deleteDialog.exerciseName) {
-            handleDeleteExercise(deleteDialog.groupKey, deleteDialog.exerciseName);
-          } else {
-            handleDeleteMuscleGroup(deleteDialog.groupKey);
-          }
-        }}
-        title={deleteDialog.type === 'exercise' ? 'Delete Exercise' : 'Delete Muscle Group'}
-        message={
-          deleteDialog.type === 'exercise' 
-            ? `Are you sure you want to delete "${deleteDialog.exerciseName}"? This action cannot be undone.`
-            : `Are you sure you want to delete "${deleteDialog.groupName}"? This action cannot be undone.`
-        }
-        confirmText={deleteDialog.type === 'exercise' ? 'Delete Exercise' : 'Delete Muscle Group'}
-      />
-    </div>
-  );
+      <DeleteConfirmDialog isOpen={deleteDialog.isOpen} onClose={() => setDeleteDialog({
+      isOpen: false,
+      groupKey: '',
+      groupName: '',
+      type: 'group'
+    })} onConfirm={() => {
+      if (deleteDialog.type === 'exercise' && deleteDialog.exerciseName) {
+        handleDeleteExercise(deleteDialog.groupKey, deleteDialog.exerciseName);
+      } else {
+        handleDeleteMuscleGroup(deleteDialog.groupKey);
+      }
+    }} title={deleteDialog.type === 'exercise' ? 'Delete Exercise' : 'Delete Muscle Group'} message={deleteDialog.type === 'exercise' ? `Are you sure you want to delete "${deleteDialog.exerciseName}"? This action cannot be undone.` : `Are you sure you want to delete "${deleteDialog.groupName}"? This action cannot be undone.`} confirmText={deleteDialog.type === 'exercise' ? 'Delete Exercise' : 'Delete Muscle Group'} />
+    </div>;
 };
