@@ -163,10 +163,10 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({
 
       {/* Workout History */}
       <div className="mb-6">
-        <h2 className="text-xl font-semibold mb-4 text-purple-200">Recent Workouts</h2>
+        <h2 className="text-xl font-semibold mb-4 text-slate-200">Recent Workouts</h2>
         {workoutHistory.length === 0 ? <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 text-center border border-white/20">
-            <p className="text-purple-200 mb-2">No workouts yet</p>
-            <p className="text-purple-300 text-sm">Start your first workout to see it here!</p>
+            <p className="text-slate-200 mb-2">No workouts yet</p>
+            <p className="text-blue-300 text-sm">Start your first workout to see it here!</p>
           </div> : <div className="space-y-3">
             {workoutHistory.slice(0, 5).map(workout => <div key={workout.id} className="w-full bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 transform transition-all duration-200 hover:bg-white/15 hover:scale-[1.02] relative">
                 {/* Delete button */}
