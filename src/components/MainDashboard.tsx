@@ -99,8 +99,8 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({
       <div className="grid grid-cols-2 gap-4 mb-8">
         <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
           <div className="flex items-center space-x-2 mb-1">
-            <TrendingUp className="w-5 h-5 text-green-300" />
-            <span className="text-purple-200 text-sm">Total Workouts</span>
+            <TrendingUp className="w-5 h-5 text-green-500" />
+            <span className="text-green-300 text-sm">Total Workouts</span>
           </div>
           <span className="text-2xl font-bold">{workoutHistory.length}</span>
         </div>
