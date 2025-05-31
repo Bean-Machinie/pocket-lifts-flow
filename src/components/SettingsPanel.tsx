@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { X } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
@@ -20,10 +19,8 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
     updateSettings
   } = useSettings();
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50">
+    <div className={`fixed inset-0 z-50 transition-opacity duration-300 ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
       {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
