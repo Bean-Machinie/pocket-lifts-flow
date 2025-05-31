@@ -351,7 +351,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
               </div>
 
               {/* Add Set Button */}
-              <button onClick={() => addSet(exercise.id)} className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl p-3 shadow-lg transform transition-all duration-200 hover:scale-105 active:scale-95">
+              <button onClick={() => addSet(exercise.id)} className="w-full flex items-center justify-center space-x-2 p-2.5 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg transition-all duration-200 hover:scale-105 active:scale-95">
                 <Plus className="w-4 h-4" />
                 <span className="font-medium text-sm">Add Set</span>
               </button>
