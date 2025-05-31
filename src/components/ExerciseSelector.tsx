@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ArrowLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Plus } from 'lucide-react';
 
 interface ExerciseSelectorProps {
   onSelectExercise: (exerciseName: string, muscleGroup: string) => void;
@@ -47,6 +47,11 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
   const [selectedMuscleGroup, setSelectedMuscleGroup] = useState<string | null>(null);
 
   const handleMuscleGroupSelect = (groupKey: string) => {
+    if (groupKey === 'add-muscle-group') {
+      // Handle adding new muscle group - for now just log
+      console.log('Add new muscle group clicked');
+      return;
+    }
     setSelectedMuscleGroup(groupKey);
   };
 
@@ -83,7 +88,7 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
 
       {/* Muscle Groups */}
       {!selectedMuscleGroup && (
-        <div className="space-y-3 animate-[fade-in_0.5s_ease-out_0.1s_both]">
+        <div className="space-y-3">
           {Object.entries(MUSCLE_GROUPS).map(([key, group]) => (
             <button
               key={key}
@@ -99,6 +104,20 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
               </div>
             </button>
           ))}
+          
+          {/* Add Muscle Group Button */}
+          <button
+            onClick={() => handleMuscleGroupSelect('add-muscle-group')}
+            className="w-full bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-left border-2 border-dashed border-white/30 transform transition-all duration-200 hover:bg-white/15 hover:scale-105 active:scale-95"
+          >
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="text-xl font-bold text-white">+ Add Muscle Group</h3>
+                <p className="text-white/60 text-sm">Create a custom muscle group</p>
+              </div>
+              <Plus className="w-6 h-6 text-white/60" />
+            </div>
+          </button>
         </div>
       )}
 
