@@ -1,7 +1,10 @@
+
 import React, { useState } from 'react';
-import { Plus, Clock, TrendingUp, X } from 'lucide-react';
+import { Plus, Clock, TrendingUp, X, Settings } from 'lucide-react';
 import { Workout } from './WorkoutApp';
 import { DeleteConfirmDialog } from './DeleteConfirmDialog';
+import { SettingsPanel } from './SettingsPanel';
+import { useSettings } from '@/contexts/SettingsContext';
 
 interface MainDashboardProps {
   workoutHistory: Workout[];
@@ -16,10 +19,12 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({
   onViewWorkout,
   onDeleteWorkout
 }) => {
+  const { settings } = useSettings();
   const [deleteDialog, setDeleteDialog] = useState<{
     isOpen: boolean;
     workoutId?: string;
   }>({ isOpen: false });
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const formatDuration = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
@@ -36,6 +41,10 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({
     }).format(date);
   };
 
+  const formatWeight = (weight: number) => {
+    return `${weight} ${settings.weightUnit}`;
+  };
+
   const openDeleteDialog = (workoutId: string) => {
     setDeleteDialog({ isOpen: true, workoutId });
   };
@@ -50,11 +59,19 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({
   return (
     <div className="min-h-screen text-white p-6 animate-fade-in">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-8 relative">
         <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
           Pocket Lifts
         </h1>
         <p className="text-purple-200 text-lg">Track your fitness journey</p>
+        
+        {/* Settings Icon */}
+        <button
+          onClick={() => setIsSettingsOpen(true)}
+          className="absolute top-0 right-0 p-2 hover:bg-white/10 rounded-lg transition-colors"
+        >
+          <Settings className="w-6 h-6 text-purple-200 hover:text-white" />
+        </button>
       </div>
 
       {/* Start Workout Button */}
@@ -164,6 +181,12 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({
         title="Delete Workout"
         message="Are you sure you want to delete this workout? This action cannot be undone."
         confirmText="Delete Workout"
+      />
+
+      {/* Settings Panel */}
+      <SettingsPanel
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
       />
     </div>
   );
