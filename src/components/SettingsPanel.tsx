@@ -38,7 +38,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
               <div className="flex items-center space-x-3">
                 <Switch id="dark-mode" checked={settings.isDarkMode} onCheckedChange={checked => updateSettings({
                 isDarkMode: checked
-              })} className="bg-violet-500 hover:bg-violet-400 text-violet-500" />
+              })} className="text-violet-500 bg-fuchsia-900 hover:bg-fuchsia-800" />
                 <span className="text-sm text-purple-200 dark:text-gray-400">
                   {settings.isDarkMode ? 'Enabled' : 'Disabled'}
                 </span>
