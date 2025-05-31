@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { MainDashboard } from './MainDashboard';
 import { ActiveWorkout } from './ActiveWorkout';
@@ -148,7 +149,7 @@ export const WorkoutApp: React.FC = () => {
 
   return (
     <SettingsProvider>
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 dark:from-gray-900 dark:via-gray-800 dark:to-black transition-colors duration-300">
+      <div className="min-h-screen bg-gradient-to-br from-background via-card to-secondary transition-colors duration-300">
         {renderScreen()}
       </div>
     </SettingsProvider>
