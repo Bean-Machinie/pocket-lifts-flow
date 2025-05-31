@@ -4,7 +4,6 @@ import { Workout, Exercise } from './WorkoutApp';
 import { DeleteConfirmDialog } from './DeleteConfirmDialog';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Input } from './ui/input';
-import { ScrollArea } from './ui/scroll-area';
 import { useSettings } from '@/contexts/SettingsContext';
 
 interface ActiveWorkoutProps {
@@ -33,11 +32,9 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
   
   const [lastAddedSetId, setLastAddedSetId] = useState<string | null>(null);
   const [lastAddedExerciseId, setLastAddedExerciseId] = useState<string | null>(null);
-  const [shouldScrollToNewExercise, setShouldScrollToNewExercise] = useState(false);
   const weightInputRefs = useRef<{[key: string]: HTMLInputElement | null}>({});
   const exerciseRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
   const setRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   // Calculate duration based on start time, not from workout.duration
   useEffect(() => {
@@ -58,23 +55,13 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
       const setElement = setRefs.current[lastAddedSetId];
       
       setTimeout(() => {
-        // Smooth scroll to the set with bottom padding to avoid going under the fixed button
-        if (setElement && scrollAreaRef.current) {
-          const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
-          if (scrollContainer) {
-            const setRect = setElement.getBoundingClientRect();
-            const containerRect = scrollContainer.getBoundingClientRect();
-            const scrollTop = scrollContainer.scrollTop;
-            
-            // Add extra padding (120px) to ensure we don't scroll under the fixed button
-            const bottomPadding = 120;
-            const targetScrollTop = scrollTop + setRect.top - containerRect.top - containerRect.height / 2 + setRect.height / 2 + bottomPadding;
-            
-            scrollContainer.scrollTo({
-              top: Math.max(0, targetScrollTop),
-              behavior: 'smooth'
-            });
-          }
+        // Smooth scroll to the set
+        if (setElement) {
+          setElement.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center',
+            inline: 'nearest'
+          });
         }
         
         // Focus and select the weight input after scrolling
@@ -89,40 +76,26 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
   }, [lastAddedSetId, workout?.exercises]);
 
   useEffect(() => {
-    if (lastAddedExerciseId && exerciseRefs.current[lastAddedExerciseId] && shouldScrollToNewExercise) {
+    if (lastAddedExerciseId && exerciseRefs.current[lastAddedExerciseId]) {
       const exerciseElement = exerciseRefs.current[lastAddedExerciseId];
       
       setTimeout(() => {
-        if (exerciseElement && scrollAreaRef.current) {
-          const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
-          if (scrollContainer) {
-            const exerciseRect = exerciseElement.getBoundingClientRect();
-            const containerRect = scrollContainer.getBoundingClientRect();
-            const scrollTop = scrollContainer.scrollTop;
-            
-            // Add extra padding (120px) to ensure we don't scroll under the fixed button
-            const bottomPadding = 120;
-            const targetScrollTop = scrollTop + exerciseRect.top - containerRect.top - containerRect.height / 2 + exerciseRect.height / 2 + bottomPadding;
-            
-            scrollContainer.scrollTo({
-              top: Math.max(0, targetScrollTop),
-              behavior: 'smooth'
-            });
-          }
-        }
-      }, 100);
+        exerciseElement?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center',
+          inline: 'nearest'
+        });
+      }, 200);
       
       setLastAddedExerciseId(null);
-      setShouldScrollToNewExercise(false);
     }
-  }, [lastAddedExerciseId, workout?.exercises, shouldScrollToNewExercise]);
+  }, [lastAddedExerciseId, workout?.exercises]);
 
   useEffect(() => {
     if (workout?.exercises && workout.exercises.length > 0) {
       const lastExercise = workout.exercises[workout.exercises.length - 1];
       if (lastExercise && !lastAddedExerciseId) {
         setLastAddedExerciseId(lastExercise.id);
-        setShouldScrollToNewExercise(true);
       }
     }
   }, [workout?.exercises?.length]);
@@ -297,7 +270,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
           <div className="flex items-center space-x-3">
             <button
               onClick={onBack}
-              className="bg-white/10 text-white p-2 rounded-xl border border-white/20 transition-all duration-200 hover:bg-white/20 active:scale-95"
+              className="bg-white/10 text-white p-2 rounded-xl border border-white/20"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
@@ -309,7 +282,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
                 <span className="text-blue-300 text-sm">•</span>
                 <Popover>
                   <PopoverTrigger asChild>
-                    <button className="text-blue-300 text-sm hover:text-blue-200 transition-colors duration-200">
+                    <button className="text-blue-300 text-sm hover:text-blue-200 transition-colors">
                       {formatTime(workout.startTime)}
                     </button>
                   </PopoverTrigger>
@@ -330,7 +303,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
           </div>
           <button
             onClick={handleEndWorkout}
-            className="bg-green-500/20 text-green-400 p-2 rounded-xl border border-green-400/30 flex items-center space-x-2 transition-all duration-200 hover:bg-green-500/30 active:scale-95"
+            className="bg-green-500/20 text-green-400 p-2 rounded-xl border border-green-400/30 flex items-center space-x-2"
           >
             <span className="text-sm font-medium">Finish</span>
           </button>
@@ -338,141 +311,137 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 relative">
-        <ScrollArea ref={scrollAreaRef} className="h-full">
-          <div className="px-6 pb-32">
-            {/* Stats Card - Now scrollable */}
-            <div className="mt-4 mb-6">
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 transition-all duration-300 hover:bg-white/15">
-                {/* Duration - Centered at top */}
-                <div className="text-center mb-4">
-                  <div className="text-3xl font-bold text-purple-400">{formatDuration(duration)}</div>
-                  <div className="text-sm text-purple-200">Duration</div>
-                </div>
-                
-                {/* Sets and Weight - Same row underneath */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center">
-                    <div className="text-xl font-bold text-blue-400">{workout.totalSets}</div>
-                    <div className="text-xs text-blue-200">Total Sets</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-xl font-bold text-green-400">{formatTotalWeight(workout.totalWeight)}</div>
-                    <div className="text-xs text-green-200">Total Weight</div>
-                  </div>
-                </div>
+      <div className="flex-1 overflow-y-auto px-6 pb-24">
+        {/* Stats Card - Now scrollable */}
+        <div className="mt-4 mb-6">
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+            {/* Duration - Centered at top */}
+            <div className="text-center mb-4">
+              <div className="text-3xl font-bold text-purple-400">{formatDuration(duration)}</div>
+              <div className="text-sm text-purple-200">Duration</div>
+            </div>
+            
+            {/* Sets and Weight - Same row underneath */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center">
+                <div className="text-xl font-bold text-blue-400">{workout.totalSets}</div>
+                <div className="text-xs text-blue-200">Total Sets</div>
+              </div>
+              <div className="text-center">
+                <div className="text-xl font-bold text-green-400">{formatTotalWeight(workout.totalWeight)}</div>
+                <div className="text-xs text-green-200">Total Weight</div>
               </div>
             </div>
-
-            {/* Exercises */}
-            <div className="space-y-3">
-              {workout.exercises.map((exercise) => (
-                <div 
-                  key={exercise.id} 
-                  ref={(el) => exerciseRefs.current[exercise.id] = el}
-                  className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20 animate-scale-in relative transition-all duration-300 hover:bg-white/15"
-                >
-                  {/* Exercise delete button */}
-                  <button
-                    onClick={() => openDeleteDialog('exercise', exercise.id)}
-                    className="absolute top-2 right-2 text-red-400 hover:text-red-300 p-1 transition-all duration-200 hover:scale-110 active:scale-95"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-
-                  <div className="mb-3 pr-8">
-                    <h3 className="text-lg font-semibold text-white">{exercise.name}</h3>
-                    <p className="text-purple-200 text-sm">{exercise.muscleGroup}</p>
-                  </div>
-
-                  {/* Sets */}
-                  <div className="space-y-2 mb-3">
-                    {exercise.sets.map((set, index) => (
-                      <div 
-                        key={set.id} 
-                        ref={(el) => setRefs.current[set.id] = el}
-                        className="bg-white/10 rounded-lg p-3 relative transition-all duration-200 hover:bg-white/15"
-                      >
-                        {/* Set delete button */}
-                        <button
-                          onClick={() => openDeleteDialog('set', exercise.id, set.id)}
-                          className="absolute top-2 right-2 text-red-400 hover:text-red-300 p-1 transition-all duration-200 hover:scale-110 active:scale-95"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-
-                        <div className="flex items-center space-x-2 mb-3">
-                          <Hash className="w-3 h-3 text-purple-400" />
-                          <span className="text-xs font-medium text-purple-200">Set {index + 1}</span>
-                        </div>
-                        
-                        {/* Weight, Reps, and Notes on same row */}
-                        <div className="flex items-center space-x-3 pr-8">
-                          <div className="flex items-center space-x-1">
-                            <input
-                              ref={(el) => weightInputRefs.current[set.id] = el}
-                              type="number"
-                              placeholder="0"
-                              value={set.weight || ''}
-                              onChange={(e) => updateSet(exercise.id, set.id, 'weight', parseFloat(e.target.value) || 0)}
-                              className="w-12 bg-transparent text-white text-center text-lg font-bold border-0 border-b border-white/30 focus:border-purple-400 focus:outline-none pb-1 transition-colors duration-200"
-                            />
-                            <span className="text-xs text-gray-300">{settings.weightUnit}</span>
-                          </div>
-                          
-                          <span className="text-gray-400">×</span>
-                          
-                          <div className="flex items-center space-x-1">
-                            <input
-                              type="number"
-                              placeholder="0"
-                              value={set.reps || ''}
-                              onChange={(e) => updateSet(exercise.id, set.id, 'reps', parseInt(e.target.value) || 0)}
-                              className="w-12 bg-transparent text-white text-center text-lg font-bold border-0 border-b border-white/30 focus:border-purple-400 focus:outline-none pb-1 transition-colors duration-200"
-                            />
-                            <span className="text-xs text-gray-300">reps</span>
-                          </div>
-                          
-                          <div className="flex-1">
-                            <input
-                              type="text"
-                              placeholder="notes..."
-                              value={set.notes || ''}
-                              onChange={(e) => updateSet(exercise.id, set.id, 'notes', e.target.value)}
-                              className="w-full bg-transparent text-white text-sm border-0 border-b border-white/30 focus:border-purple-400 focus:outline-none pb-1 placeholder:text-gray-400 transition-colors duration-200"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                    
-                    {exercise.sets.length === 0 && (
-                      <p className="text-purple-300 text-sm text-center py-3">
-                        No sets yet. Add your first set!
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Add Set Button */}
-                  <button
-                    onClick={() => addSet(exercise.id)}
-                    className="w-full bg-purple-600/30 text-purple-200 border border-purple-400/30 rounded-lg p-2.5 flex items-center justify-center space-x-2 hover:bg-purple-600/40 transition-all duration-200 active:scale-95"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span className="font-medium text-sm">Add Set</span>
-                  </button>
-                </div>
-              ))}
-            </div>
-
-            {workout.exercises.length === 0 && (
-              <div className="text-center py-12">
-                <p className="text-purple-200 mb-2">No exercises added yet</p>
-                <p className="text-purple-300 text-sm">Tap "Add Exercise" to get started!</p>
-              </div>
-            )}
           </div>
-        </ScrollArea>
+        </div>
+
+        {/* Exercises */}
+        <div className="space-y-3">
+          {workout.exercises.map((exercise) => (
+            <div 
+              key={exercise.id} 
+              ref={(el) => exerciseRefs.current[exercise.id] = el}
+              className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20 animate-scale-in relative"
+            >
+              {/* Exercise delete button */}
+              <button
+                onClick={() => openDeleteDialog('exercise', exercise.id)}
+                className="absolute top-2 right-2 text-red-400 hover:text-red-300 p-1"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              <div className="mb-3 pr-8">
+                <h3 className="text-lg font-semibold text-white">{exercise.name}</h3>
+                <p className="text-purple-200 text-sm">{exercise.muscleGroup}</p>
+              </div>
+
+              {/* Sets */}
+              <div className="space-y-2 mb-3">
+                {exercise.sets.map((set, index) => (
+                  <div 
+                    key={set.id} 
+                    ref={(el) => setRefs.current[set.id] = el}
+                    className="bg-white/10 rounded-lg p-3 relative"
+                  >
+                    {/* Set delete button */}
+                    <button
+                      onClick={() => openDeleteDialog('set', exercise.id, set.id)}
+                      className="absolute top-2 right-2 text-red-400 hover:text-red-300 p-1"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+
+                    <div className="flex items-center space-x-2 mb-3">
+                      <Hash className="w-3 h-3 text-purple-400" />
+                      <span className="text-xs font-medium text-purple-200">Set {index + 1}</span>
+                    </div>
+                    
+                    {/* Weight, Reps, and Notes on same row */}
+                    <div className="flex items-center space-x-3 pr-8">
+                      <div className="flex items-center space-x-1">
+                        <input
+                          ref={(el) => weightInputRefs.current[set.id] = el}
+                          type="number"
+                          placeholder="0"
+                          value={set.weight || ''}
+                          onChange={(e) => updateSet(exercise.id, set.id, 'weight', parseFloat(e.target.value) || 0)}
+                          className="w-12 bg-transparent text-white text-center text-lg font-bold border-0 border-b border-white/30 focus:border-purple-400 focus:outline-none pb-1"
+                        />
+                        <span className="text-xs text-gray-300">{settings.weightUnit}</span>
+                      </div>
+                      
+                      <span className="text-gray-400">×</span>
+                      
+                      <div className="flex items-center space-x-1">
+                        <input
+                          type="number"
+                          placeholder="0"
+                          value={set.reps || ''}
+                          onChange={(e) => updateSet(exercise.id, set.id, 'reps', parseInt(e.target.value) || 0)}
+                          className="w-12 bg-transparent text-white text-center text-lg font-bold border-0 border-b border-white/30 focus:border-purple-400 focus:outline-none pb-1"
+                        />
+                        <span className="text-xs text-gray-300">reps</span>
+                      </div>
+                      
+                      <div className="flex-1">
+                        <input
+                          type="text"
+                          placeholder="notes..."
+                          value={set.notes || ''}
+                          onChange={(e) => updateSet(exercise.id, set.id, 'notes', e.target.value)}
+                          className="w-full bg-transparent text-white text-sm border-0 border-b border-white/30 focus:border-purple-400 focus:outline-none pb-1 placeholder:text-gray-400"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                
+                {exercise.sets.length === 0 && (
+                  <p className="text-purple-300 text-sm text-center py-3">
+                    No sets yet. Add your first set!
+                  </p>
+                )}
+              </div>
+
+              {/* Add Set Button */}
+              <button
+                onClick={() => addSet(exercise.id)}
+                className="w-full bg-purple-600/30 text-purple-200 border border-purple-400/30 rounded-lg p-2.5 flex items-center justify-center space-x-2 hover:bg-purple-600/40 transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                <span className="font-medium text-sm">Add Set</span>
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {workout.exercises.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-purple-200 mb-2">No exercises added yet</p>
+            <p className="text-purple-300 text-sm">Tap "Add Exercise" to get started!</p>
+          </div>
+        )}
       </div>
 
       {/* Fixed Add Exercise Button */}
