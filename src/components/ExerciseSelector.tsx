@@ -55,10 +55,25 @@ const MUSCLE_GROUPS: MuscleGroups = {
 const loadMuscleGroups = (): MuscleGroups => {
   try {
     const saved = localStorage.getItem('customMuscleGroups');
+    const savedExercises = localStorage.getItem('customExercises');
+    
+    let groups = { ...MUSCLE_GROUPS };
+    
     if (saved) {
       const customGroups = JSON.parse(saved);
-      return { ...MUSCLE_GROUPS, ...customGroups };
+      groups = { ...groups, ...customGroups };
     }
+    
+    if (savedExercises) {
+      const customExercises = JSON.parse(savedExercises);
+      Object.keys(customExercises).forEach(groupKey => {
+        if (groups[groupKey]) {
+          groups[groupKey].exercises = [...new Set([...groups[groupKey].exercises, ...customExercises[groupKey]])];
+        }
+      });
+    }
+    
+    return groups;
   } catch (error) {
     console.error('Error loading muscle groups:', error);
   }
@@ -69,12 +84,23 @@ const loadMuscleGroups = (): MuscleGroups => {
 const saveCustomMuscleGroups = (muscleGroups: MuscleGroups) => {
   try {
     const customGroups: MuscleGroups = {};
+    const customExercises: Record<string, string[]> = {};
+    
     Object.entries(muscleGroups).forEach(([key, group]) => {
       if (group.isCustom) {
         customGroups[key] = group;
+      } else {
+        // For built-in groups, save only the custom exercises
+        const originalExercises = MUSCLE_GROUPS[key]?.exercises || [];
+        const addedExercises = group.exercises.filter(exercise => !originalExercises.includes(exercise));
+        if (addedExercises.length > 0) {
+          customExercises[key] = addedExercises;
+        }
       }
     });
+    
     localStorage.setItem('customMuscleGroups', JSON.stringify(customGroups));
+    localStorage.setItem('customExercises', JSON.stringify(customExercises));
   } catch (error) {
     console.error('Error saving muscle groups:', error);
   }
@@ -183,12 +209,12 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
             <button
               key={key}
               onClick={() => handleMuscleGroupSelect(key)}
-              className="w-full bg-white/5 backdrop-blur-sm rounded-2xl p-6 text-left border border-white/10 transform transition-all duration-200 hover:bg-white/10 hover:scale-105 active:scale-95"
+              className="w-full bg-white/5 backdrop-blur-sm rounded-xl p-4 text-left border border-white/10 transform transition-all duration-200 hover:bg-white/10 hover:scale-105 active:scale-95"
             >
               <div className="flex justify-between items-center">
                 <div>
-                  <h3 className="text-xl font-semibold text-white">{group.name}</h3>
-                  <p className="text-white/60 text-sm">{group.exercises.length} exercises</p>
+                  <h3 className="text-lg font-medium text-white">{group.name}</h3>
+                  <p className="text-white/60 text-xs">{group.exercises.length} exercises</p>
                 </div>
                 <div className="flex items-center space-x-2">
                   {group.isCustom && (
@@ -202,7 +228,7 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
                       <X className="w-4 h-4" />
                     </button>
                   )}
-                  <ChevronRight className="w-6 h-6 text-white/40" />
+                  <ChevronRight className="w-5 h-5 text-white/40" />
                 </div>
               </div>
             </button>
@@ -211,14 +237,14 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
           {/* Add Muscle Group Button */}
           <button
             onClick={() => handleMuscleGroupSelect('add-muscle-group')}
-            className="w-full bg-white/5 backdrop-blur-sm rounded-2xl p-6 text-left border-2 border-dashed border-white/20 transform transition-all duration-200 hover:bg-white/10 hover:scale-105 active:scale-95"
+            className="w-full bg-white/5 backdrop-blur-sm rounded-xl p-4 text-left border-2 border-dashed border-white/20 transform transition-all duration-200 hover:bg-white/10 hover:scale-105 active:scale-95"
           >
             <div className="flex justify-between items-center">
               <div>
-                <h3 className="text-xl font-semibold text-white">+ Add Muscle Group</h3>
-                <p className="text-white/50 text-sm">Create a custom muscle group</p>
+                <h3 className="text-lg font-medium text-white">+ Add Muscle Group</h3>
+                <p className="text-white/50 text-xs">Create a custom muscle group</p>
               </div>
-              <Plus className="w-6 h-6 text-white/40" />
+              <Plus className="w-5 h-5 text-white/40" />
             </div>
           </button>
         </div>
