@@ -282,8 +282,8 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
               <div className="text-sm text-purple-200">Duration</div>
             </div>
             
-            {/* Sets and Weight - Same row underneath */}
-            <div className="grid grid-cols-2 gap-4">
+            {/* Sets, Weight, and Exercises - Three columns underneath */}
+            <div className="grid grid-cols-3 gap-4">
               <div className="text-center">
                 <div className="text-xl font-bold text-blue-400">{workout.totalSets}</div>
                 <div className="text-xs text-blue-200">Total Sets</div>
@@ -291,6 +291,10 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
               <div className="text-center">
                 <div className="text-xl font-bold text-green-400">{formatTotalWeight(workout.totalWeight)}</div>
                 <div className="text-xs text-green-200">Total Weight</div>
+              </div>
+              <div className="text-center">
+                <div className="text-xl font-bold text-orange-400">{workout.exercises.length}</div>
+                <div className="text-xs text-orange-200">Nr. Exercises</div>
               </div>
             </div>
           </div>
