@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { MainDashboard } from './MainDashboard';
 import { ActiveWorkout } from './ActiveWorkout';
@@ -27,6 +28,7 @@ export interface Workout {
   exercises: Exercise[];
   totalSets: number;
   totalWeight: number;
+  isActive?: boolean;
 }
 
 export type AppScreen = 'dashboard' | 'workout' | 'exercise-selector' | 'workout-viewer';
@@ -36,6 +38,7 @@ export const WorkoutApp: React.FC = () => {
   const [currentWorkout, setCurrentWorkout] = useState<Workout | null>(null);
   const [viewingWorkout, setViewingWorkout] = useState<Workout | null>(null);
   const [workoutHistory, setWorkoutHistory] = useState<Workout[]>([]);
+  const [activeWorkouts, setActiveWorkouts] = useState<Workout[]>([]);
 
   const startNewWorkout = () => {
     const newWorkout: Workout = {
@@ -44,15 +47,29 @@ export const WorkoutApp: React.FC = () => {
       duration: 0,
       exercises: [],
       totalSets: 0,
-      totalWeight: 0
+      totalWeight: 0,
+      isActive: true
     };
     setCurrentWorkout(newWorkout);
+    setActiveWorkouts(prev => [newWorkout, ...prev]);
     setCurrentScreen('workout');
+  };
+
+  const resumeWorkout = (workout: Workout) => {
+    setCurrentWorkout(workout);
+    setCurrentScreen('workout');
+  };
+
+  const pauseWorkout = () => {
+    setCurrentWorkout(null);
+    setCurrentScreen('dashboard');
   };
 
   const endWorkout = () => {
     if (currentWorkout) {
-      setWorkoutHistory(prev => [currentWorkout, ...prev]);
+      const completedWorkout = { ...currentWorkout, isActive: false };
+      setWorkoutHistory(prev => [completedWorkout, ...prev]);
+      setActiveWorkouts(prev => prev.filter(w => w.id !== currentWorkout.id));
       setCurrentWorkout(null);
     }
     setCurrentScreen('dashboard');
@@ -90,19 +107,36 @@ export const WorkoutApp: React.FC = () => {
       sets: [firstSet]
     };
     
-    setCurrentWorkout(prev => prev ? {
-      ...prev,
-      exercises: [...prev.exercises, newExercise]
-    } : null);
+    const updatedWorkout = {
+      ...currentWorkout,
+      exercises: [...currentWorkout.exercises, newExercise]
+    };
+    
+    setCurrentWorkout(updatedWorkout);
+    // Update the workout in active workouts list
+    setActiveWorkouts(prev => 
+      prev.map(w => w.id === updatedWorkout.id ? updatedWorkout : w)
+    );
     setCurrentScreen('workout');
   };
 
   const updateWorkout = (updatedWorkout: Workout) => {
     setCurrentWorkout(updatedWorkout);
+    // Update the workout in active workouts list
+    setActiveWorkouts(prev => 
+      prev.map(w => w.id === updatedWorkout.id ? updatedWorkout : w)
+    );
   };
 
   const deleteWorkout = (workoutId: string) => {
     setWorkoutHistory(prev => prev.filter(w => w.id !== workoutId));
+  };
+
+  const deleteActiveWorkout = (workoutId: string) => {
+    setActiveWorkouts(prev => prev.filter(w => w.id !== workoutId));
+    if (currentWorkout?.id === workoutId) {
+      setCurrentWorkout(null);
+    }
   };
 
   const renderScreen = () => {
@@ -111,9 +145,12 @@ export const WorkoutApp: React.FC = () => {
         return (
           <MainDashboard
             workoutHistory={workoutHistory}
+            activeWorkouts={activeWorkouts}
             onStartWorkout={startNewWorkout}
+            onResumeWorkout={resumeWorkout}
             onViewWorkout={viewWorkout}
             onDeleteWorkout={deleteWorkout}
+            onDeleteActiveWorkout={deleteActiveWorkout}
           />
         );
       case 'workout':
@@ -123,7 +160,7 @@ export const WorkoutApp: React.FC = () => {
             onUpdateWorkout={updateWorkout}
             onEndWorkout={endWorkout}
             onAddExercise={() => setCurrentScreen('exercise-selector')}
-            onBack={() => setCurrentScreen('dashboard')}
+            onBack={pauseWorkout}
           />
         );
       case 'exercise-selector':
