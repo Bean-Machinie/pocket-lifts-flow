@@ -446,7 +446,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
       </div>
 
       {/* Fixed Add Exercise Button */}
-      <div className="fixed bottom-0 left-0 right-0 p-6 bg-purple-900 border-t border-white/20">
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-b from-purple-900 via-purple-900 to-purple-900/95 backdrop-blur-sm border-t border-white/10">
         <button
           onClick={onAddExercise}
           className="w-full bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl p-4 shadow-lg transform transition-all duration-200 hover:scale-105 active:scale-95"
