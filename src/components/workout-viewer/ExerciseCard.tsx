@@ -20,18 +20,18 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
   onDeleteSet
 }) => {
   return (
-    <div className="bg-card backdrop-blur-sm rounded-xl p-3 border border-border shadow-sm animate-scale-in relative">
+    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20 animate-scale-in relative">
       {/* Exercise delete button */}
       <button
         onClick={() => onDeleteExercise(exercise.id)}
-        className="absolute top-2 right-2 text-destructive hover:text-destructive/80 p-1"
+        className="absolute top-2 right-2 text-red-400 hover:text-red-300 p-1"
       >
         <X className="w-4 h-4" />
       </button>
 
       <div className="mb-3 pr-8">
-        <h3 className="text-lg font-semibold text-card-foreground">{exercise.name}</h3>
-        <p className="text-muted-foreground text-sm">{exercise.muscleGroup}</p>
+        <h3 className="text-lg font-semibold text-white">{exercise.name}</h3>
+        <p className="text-purple-200 text-sm">{exercise.muscleGroup}</p>
       </div>
 
       {/* Sets */}
@@ -48,7 +48,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
         ))}
         
         {exercise.sets.length === 0 && (
-          <p className="text-muted-foreground text-sm text-center py-3">
+          <p className="text-purple-300 text-sm text-center py-3">
             No sets recorded for this exercise.
           </p>
         )}
@@ -57,7 +57,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
       {/* Add Set Button */}
       <button
         onClick={() => onAddSet(exercise.id)}
-        className="w-full bg-accent text-accent-foreground border border-border rounded-lg p-2.5 flex items-center justify-center space-x-2 hover:bg-accent/80 transition-colors"
+        className="w-full bg-purple-600/30 text-purple-200 border border-purple-400/30 rounded-lg p-2.5 flex items-center justify-center space-x-2 hover:bg-purple-600/40 transition-colors"
       >
         <Plus className="w-4 h-4" />
         <span className="font-medium text-sm">Add Set</span>

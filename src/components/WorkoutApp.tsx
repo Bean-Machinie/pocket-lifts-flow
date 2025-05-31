@@ -149,7 +149,7 @@ export const WorkoutApp: React.FC = () => {
 
   return (
     <SettingsProvider>
-      <div className="min-h-screen bg-gradient-to-br from-purple-100 via-white to-purple-200 dark:from-slate-900 dark:via-slate-800 dark:to-slate-700 transition-colors duration-300">
+      <div className="min-h-screen bg-gradient-to-br from-background via-card to-secondary transition-colors duration-300">
         {renderScreen()}
       </div>
     </SettingsProvider>

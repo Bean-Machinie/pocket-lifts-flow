@@ -13,13 +13,13 @@ export const WorkoutHeader: React.FC<WorkoutHeaderProps> = ({ onBack, workoutDat
       <div className="flex items-center space-x-3">
         <button
           onClick={onBack}
-          className="bg-card hover:bg-accent text-card-foreground p-2 rounded-xl border border-border transition-colors"
+          className="bg-white/10 text-white p-2 rounded-xl border border-white/20"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Workout Details</h1>
-          <p className="text-muted-foreground text-sm">{workoutDate}</p>
+          <h1 className="text-2xl font-bold text-purple-200">Workout Details</h1>
+          <p className="text-purple-200 text-sm">{workoutDate}</p>
         </div>
       </div>
     </div>

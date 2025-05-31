@@ -29,11 +29,11 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
       />
       
       {/* Settings Panel */}
-      <div className={`fixed inset-y-0 right-0 w-80 bg-card backdrop-blur-sm border-l border-border shadow-xl transform transition-transform duration-300 ease-out ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div className={`fixed inset-y-0 right-0 w-80 bg-card/95 backdrop-blur-sm border-l border-border shadow-xl transform transition-transform duration-300 ease-out ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-border">
-            <h2 className="text-xl font-semibold text-card-foreground">Settings</h2>
+            <h2 className="text-xl font-semibold text-foreground">Settings</h2>
             <button onClick={onClose} className="p-2 hover:bg-accent rounded-lg transition-colors">
               <X className="w-5 h-5 text-muted-foreground" />
             </button>
@@ -43,7 +43,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
           <div className="flex-1 p-6 space-y-6">
             {/* Dark Mode Setting */}
             <div className="space-y-2">
-              <Label htmlFor="dark-mode" className="text-base font-medium text-card-foreground">
+              <Label htmlFor="dark-mode" className="text-base font-medium text-foreground">
                 Dark Mode
               </Label>
               <div className="flex items-center space-x-3">
@@ -60,7 +60,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
             {/* Weight Unit Setting */}
             <div className="space-y-2">
-              <Label className="text-base font-medium text-card-foreground">
+              <Label className="text-base font-medium text-foreground">
                 Weight Unit
               </Label>
               <div className="flex space-x-2">
