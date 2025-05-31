@@ -5,7 +5,6 @@ import { DeleteConfirmDialog } from './DeleteConfirmDialog';
 import { SettingsPanel } from './SettingsPanel';
 import { StatsPanel } from './StatsPanel';
 import { useSettings } from '@/contexts/SettingsContext';
-
 interface MainDashboardProps {
   workoutHistory: Workout[];
   activeWorkouts: Workout[];
@@ -36,7 +35,6 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({
   });
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isStatsOpen, setIsStatsOpen] = useState(false);
-
   const formatDuration = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor(seconds % 3600 / 60);
@@ -118,12 +116,9 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({
       </div>
 
       {/* Your Stats Button */}
-      <button 
-        onClick={() => setIsStatsOpen(true)}
-        className="w-full bg-white/10 backdrop-blur-sm rounded-xl p-3 mb-8 border border-white/20 hover:bg-white/15 transition-all duration-200 flex items-center justify-center space-x-2"
-      >
-        <BarChart3 className="w-5 h-5 text-purple-400" />
-        <span className="text-purple-300 font-medium">Your Stats</span>
+      <button onClick={() => setIsStatsOpen(true)} className="w-full bg-white/10 backdrop-blur-sm rounded-xl p-3 mb-8 border border-white/20 hover:bg-white/15 transition-all duration-200 flex items-center justify-center space-x-2">
+        <BarChart3 className="w-5 h-5 text-slate-400" />
+        <span className="text-slate-300 font-bold">Your Stats</span>
       </button>
 
       {/* Active Workouts */}
