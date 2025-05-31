@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Edit3 } from 'lucide-react';
 import { Workout } from '../WorkoutApp';
@@ -33,9 +34,9 @@ export const WorkoutTimesCard: React.FC<WorkoutTimesCardProps> = ({ workout, onU
     const newStartTime = new Date(workout.startTime);
     newStartTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
 
-    // Keep the end time fixed, only change the duration
-    const originalEndTime = new Date(workout.startTime.getTime() + (workout.duration * 1000));
-    const newDuration = Math.floor((originalEndTime.getTime() - newStartTime.getTime()) / 1000);
+    // Calculate new duration based on fixed end time
+    const currentEndTime = getEndTime();
+    const newDuration = Math.floor((currentEndTime.getTime() - newStartTime.getTime()) / 1000);
 
     const updatedWorkout = {
       ...workout,
@@ -52,10 +53,15 @@ export const WorkoutTimesCard: React.FC<WorkoutTimesCardProps> = ({ workout, onU
     if (!customEndTime) return;
 
     const [hours, minutes] = customEndTime.split(':');
-    const endTime = new Date(workout.startTime);
-    endTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+    const newEndTime = new Date(workout.startTime);
+    newEndTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
     
-    const newDuration = Math.floor((endTime.getTime() - workout.startTime.getTime()) / 1000);
+    // If the new end time is before start time, set it to the next day
+    if (newEndTime.getTime() <= workout.startTime.getTime()) {
+      newEndTime.setDate(newEndTime.getDate() + 1);
+    }
+    
+    const newDuration = Math.floor((newEndTime.getTime() - workout.startTime.getTime()) / 1000);
     
     const updatedWorkout = {
       ...workout,

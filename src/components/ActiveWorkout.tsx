@@ -152,6 +152,19 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
     onUpdateWorkout(updatedWorkout);
   };
 
+  const handleEndWorkout = () => {
+    if (!workout) return;
+
+    // Save the current live duration to the workout before ending
+    const finalWorkout = {
+      ...workout,
+      duration: duration // Use the live duration from state
+    };
+
+    onUpdateWorkout(finalWorkout);
+    onEndWorkout();
+  };
+
   const addSet = (exerciseId: string) => {
     if (!workout) return;
 
@@ -289,7 +302,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
             </div>
           </div>
           <button
-            onClick={onEndWorkout}
+            onClick={handleEndWorkout}
             className="bg-green-500/20 text-green-400 p-2 rounded-xl border border-green-400/30 flex items-center space-x-2"
           >
             <span className="text-sm font-medium">Finish</span>
