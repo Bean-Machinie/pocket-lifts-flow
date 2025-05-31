@@ -321,7 +321,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
                     </button>
 
                     <div className="flex items-center space-x-2 mb-3">
-                      <Hash className="w-3 h-3 text-slate-200 font-bold" />
+                      <Hash className="w-3 h-3 text-slate-200" />
                       <span className="text-xs font-bold text-slate-200">Set {index + 1}</span>
                     </div>
                     
