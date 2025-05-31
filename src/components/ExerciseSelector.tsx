@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, ChevronRight, Plus, X } from 'lucide-react';
 import { AddMuscleGroupPanel } from './AddMuscleGroupPanel';
+import { AddExercisePanel } from './AddExercisePanel';
 import { DeleteConfirmDialog } from './DeleteConfirmDialog';
 
 interface ExerciseSelectorProps {
@@ -9,7 +10,15 @@ interface ExerciseSelectorProps {
   onBack: () => void;
 }
 
-const MUSCLE_GROUPS = {
+interface MuscleGroup {
+  name: string;
+  exercises: string[];
+  isCustom: boolean;
+}
+
+type MuscleGroups = Record<string, MuscleGroup>;
+
+const MUSCLE_GROUPS: MuscleGroups = {
   chest: {
     name: 'Chest',
     exercises: ['Bench Press', 'Incline Bench Press', 'Decline Bench Press', 'Dumbbell Flyes', 'Push-ups', 'Chest Dips', 'Cable Crossover'],
@@ -42,13 +51,43 @@ const MUSCLE_GROUPS = {
   }
 };
 
+// Load saved muscle groups from localStorage
+const loadMuscleGroups = (): MuscleGroups => {
+  try {
+    const saved = localStorage.getItem('customMuscleGroups');
+    if (saved) {
+      const customGroups = JSON.parse(saved);
+      return { ...MUSCLE_GROUPS, ...customGroups };
+    }
+  } catch (error) {
+    console.error('Error loading muscle groups:', error);
+  }
+  return MUSCLE_GROUPS;
+};
+
+// Save custom muscle groups to localStorage
+const saveCustomMuscleGroups = (muscleGroups: MuscleGroups) => {
+  try {
+    const customGroups: MuscleGroups = {};
+    Object.entries(muscleGroups).forEach(([key, group]) => {
+      if (group.isCustom) {
+        customGroups[key] = group;
+      }
+    });
+    localStorage.setItem('customMuscleGroups', JSON.stringify(customGroups));
+  } catch (error) {
+    console.error('Error saving muscle groups:', error);
+  }
+};
+
 export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
   onSelectExercise,
   onBack
 }) => {
   const [selectedMuscleGroup, setSelectedMuscleGroup] = useState<string | null>(null);
-  const [muscleGroups, setMuscleGroups] = useState(MUSCLE_GROUPS);
+  const [muscleGroups, setMuscleGroups] = useState<MuscleGroups>(loadMuscleGroups);
   const [isAddPanelOpen, setIsAddPanelOpen] = useState(false);
+  const [isAddExerciseOpen, setIsAddExerciseOpen] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState<{
     isOpen: boolean;
     groupKey: string;
@@ -68,8 +107,8 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
   };
 
   const handleExerciseSelect = (exerciseName: string) => {
-    if (selectedMuscleGroup) {
-      onSelectExercise(exerciseName, muscleGroups[selectedMuscleGroup as keyof typeof muscleGroups].name);
+    if (selectedMuscleGroup && muscleGroups[selectedMuscleGroup]) {
+      onSelectExercise(exerciseName, muscleGroups[selectedMuscleGroup].name);
     }
   };
 
@@ -81,21 +120,38 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
     }
   };
 
-  const handleAddMuscleGroup = (name: string, exercises: string[]) => {
+  const handleAddMuscleGroup = (name: string) => {
     const key = name.toLowerCase().replace(/\s+/g, '-');
-    setMuscleGroups({
+    const updatedGroups = {
       ...muscleGroups,
       [key]: {
         name,
-        exercises,
+        exercises: [],
         isCustom: true
       }
-    });
+    };
+    setMuscleGroups(updatedGroups);
+    saveCustomMuscleGroups(updatedGroups);
+  };
+
+  const handleAddExercise = (exerciseName: string) => {
+    if (selectedMuscleGroup && muscleGroups[selectedMuscleGroup]) {
+      const updatedGroups = {
+        ...muscleGroups,
+        [selectedMuscleGroup]: {
+          ...muscleGroups[selectedMuscleGroup],
+          exercises: [...muscleGroups[selectedMuscleGroup].exercises, exerciseName]
+        }
+      };
+      setMuscleGroups(updatedGroups);
+      saveCustomMuscleGroups(updatedGroups);
+    }
   };
 
   const handleDeleteMuscleGroup = (groupKey: string) => {
     const { [groupKey]: deleted, ...remaining } = muscleGroups;
     setMuscleGroups(remaining);
+    saveCustomMuscleGroups(remaining);
     setDeleteDialog({ isOpen: false, groupKey: '', groupName: '' });
   };
 
@@ -112,7 +168,7 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
         </button>
         <div>
           <h1 className="text-2xl font-bold text-purple-200">
-            {selectedMuscleGroup ? muscleGroups[selectedMuscleGroup as keyof typeof muscleGroups].name : 'Select Exercise'}
+            {selectedMuscleGroup ? muscleGroups[selectedMuscleGroup]?.name : 'Select Exercise'}
           </h1>
           <p className="text-purple-300 text-sm">
             {selectedMuscleGroup ? 'Choose an exercise' : 'Choose a muscle group first'}
@@ -169,9 +225,9 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
       )}
 
       {/* Exercises */}
-      {selectedMuscleGroup && (
+      {selectedMuscleGroup && muscleGroups[selectedMuscleGroup] && (
         <div className="space-y-3 animate-[fade-in_0.4s_ease-out]">
-          {muscleGroups[selectedMuscleGroup as keyof typeof muscleGroups].exercises.map((exercise) => (
+          {muscleGroups[selectedMuscleGroup].exercises.map((exercise) => (
             <button
               key={exercise}
               onClick={() => handleExerciseSelect(exercise)}
@@ -183,6 +239,17 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
               </div>
             </button>
           ))}
+          
+          {/* Add Exercise Button */}
+          <button
+            onClick={() => setIsAddExerciseOpen(true)}
+            className="w-full bg-white/5 backdrop-blur-sm rounded-2xl p-4 text-left border-2 border-dashed border-white/20 transform transition-all duration-200 hover:bg-white/10 hover:scale-105 active:scale-95"
+          >
+            <div className="flex justify-between items-center">
+              <span className="text-lg font-medium text-white">+ Add Exercise</span>
+              <Plus className="w-5 h-5 text-white/40" />
+            </div>
+          </button>
         </div>
       )}
 
@@ -191,6 +258,14 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
         isOpen={isAddPanelOpen}
         onClose={() => setIsAddPanelOpen(false)}
         onSave={handleAddMuscleGroup}
+      />
+
+      {/* Add Exercise Panel */}
+      <AddExercisePanel
+        isOpen={isAddExerciseOpen}
+        onClose={() => setIsAddExerciseOpen(false)}
+        onSave={handleAddExercise}
+        muscleGroupName={selectedMuscleGroup ? muscleGroups[selectedMuscleGroup]?.name : ''}
       />
 
       {/* Delete Confirmation Dialog */}

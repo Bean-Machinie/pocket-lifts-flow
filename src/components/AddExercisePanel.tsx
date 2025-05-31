@@ -2,20 +2,22 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 
-interface AddMuscleGroupPanelProps {
+interface AddExercisePanelProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (name: string) => void;
+  onSave: (exerciseName: string) => void;
+  muscleGroupName: string;
 }
 
-export const AddMuscleGroupPanel: React.FC<AddMuscleGroupPanelProps> = ({
+export const AddExercisePanel: React.FC<AddExercisePanelProps> = ({
   isOpen,
   onClose,
-  onSave
+  onSave,
+  muscleGroupName
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [groupName, setGroupName] = useState('');
+  const [exerciseName, setExerciseName] = useState('');
 
   useEffect(() => {
     if (isOpen) {
@@ -25,14 +27,14 @@ export const AddMuscleGroupPanel: React.FC<AddMuscleGroupPanelProps> = ({
       setIsAnimating(false);
       setTimeout(() => {
         setIsVisible(false);
-        setGroupName('');
+        setExerciseName('');
       }, 300);
     }
   }, [isOpen]);
 
   const handleSave = () => {
-    if (groupName.trim()) {
-      onSave(groupName.trim());
+    if (exerciseName.trim()) {
+      onSave(exerciseName.trim());
       onClose();
     }
   };
@@ -63,16 +65,17 @@ export const AddMuscleGroupPanel: React.FC<AddMuscleGroupPanelProps> = ({
 
         <div className="space-y-4">
           <div>
-            <h3 className="text-lg font-semibold text-white mb-4">Add Muscle Group</h3>
+            <h3 className="text-lg font-semibold text-white mb-2">Add Exercise</h3>
+            <p className="text-purple-300 text-sm mb-4">to {muscleGroupName}</p>
             
             <div className="space-y-3">
               <div>
-                <label className="block text-purple-200 text-sm mb-1">Group Name</label>
+                <label className="block text-purple-200 text-sm mb-1">Exercise Name</label>
                 <input
                   type="text"
-                  value={groupName}
-                  onChange={(e) => setGroupName(e.target.value)}
-                  placeholder="Enter muscle group name"
+                  value={exerciseName}
+                  onChange={(e) => setExerciseName(e.target.value)}
+                  placeholder="Enter exercise name"
                   className="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white placeholder-white/50"
                 />
               </div>
