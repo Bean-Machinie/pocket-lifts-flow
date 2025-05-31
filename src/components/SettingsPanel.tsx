@@ -1,7 +1,12 @@
 
 import React from 'react';
-import { X } from 'lucide-react';
 import { useSettings } from '@/contexts/SettingsContext';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
 
 interface SettingsPanelProps {
   isOpen: boolean;
@@ -11,24 +16,15 @@ interface SettingsPanelProps {
 export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose }) => {
   const { settings, updateSettings } = useSettings();
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-slate-800 rounded-2xl p-6 w-full max-w-md border border-white/20">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-white">Settings</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-white p-1"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+    <Sheet open={isOpen} onOpenChange={onClose}>
+      <SheetContent side="right" className="bg-slate-800 border-white/20">
+        <SheetHeader>
+          <SheetTitle className="text-xl font-bold text-white">Settings</SheetTitle>
+        </SheetHeader>
 
         {/* Weight Unit Setting */}
-        <div className="space-y-4">
+        <div className="space-y-4 mt-6">
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-3">
               Weight Unit
@@ -57,7 +53,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </SheetContent>
+    </Sheet>
   );
 };
