@@ -32,6 +32,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
   
   const [lastAddedSetId, setLastAddedSetId] = useState<string | null>(null);
   const [lastAddedExerciseId, setLastAddedExerciseId] = useState<string | null>(null);
+  const [shouldScrollToNewExercise, setShouldScrollToNewExercise] = useState(false);
   const weightInputRefs = useRef<{[key: string]: HTMLInputElement | null}>({});
   const exerciseRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
   const setRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
@@ -76,26 +77,28 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
   }, [lastAddedSetId, workout?.exercises]);
 
   useEffect(() => {
-    if (lastAddedExerciseId && exerciseRefs.current[lastAddedExerciseId]) {
+    if (lastAddedExerciseId && exerciseRefs.current[lastAddedExerciseId] && shouldScrollToNewExercise) {
       const exerciseElement = exerciseRefs.current[lastAddedExerciseId];
       
       setTimeout(() => {
         exerciseElement?.scrollIntoView({ 
-          behavior: 'smooth', 
+          behavior: 'instant', // Changed from 'smooth' to 'instant'
           block: 'center',
           inline: 'nearest'
         });
-      }, 200);
+      }, 50); // Reduced delay
       
       setLastAddedExerciseId(null);
+      setShouldScrollToNewExercise(false);
     }
-  }, [lastAddedExerciseId, workout?.exercises]);
+  }, [lastAddedExerciseId, workout?.exercises, shouldScrollToNewExercise]);
 
   useEffect(() => {
     if (workout?.exercises && workout.exercises.length > 0) {
       const lastExercise = workout.exercises[workout.exercises.length - 1];
       if (lastExercise && !lastAddedExerciseId) {
         setLastAddedExerciseId(lastExercise.id);
+        setShouldScrollToNewExercise(true);
       }
     }
   }, [workout?.exercises?.length]);
