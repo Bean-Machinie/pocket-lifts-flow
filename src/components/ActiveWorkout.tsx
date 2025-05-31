@@ -29,7 +29,10 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
   }>({ isOpen: false, type: 'set' });
   
   const [lastAddedSetId, setLastAddedSetId] = useState<string | null>(null);
+  const [lastAddedExerciseId, setLastAddedExerciseId] = useState<string | null>(null);
   const weightInputRefs = useRef<{[key: string]: HTMLInputElement | null}>({});
+  const exerciseRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
+  const setRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
 
   useEffect(() => {
     if (!workout) return;
@@ -46,13 +49,53 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
   useEffect(() => {
     if (lastAddedSetId && weightInputRefs.current[lastAddedSetId]) {
       const inputElement = weightInputRefs.current[lastAddedSetId];
+      const setElement = setRefs.current[lastAddedSetId];
+      
       setTimeout(() => {
-        inputElement?.focus();
-        inputElement?.select();
+        // Smooth scroll to the set
+        if (setElement) {
+          setElement.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center',
+            inline: 'nearest'
+          });
+        }
+        
+        // Focus and select the weight input after scrolling
+        setTimeout(() => {
+          inputElement?.focus();
+          inputElement?.select();
+        }, 300);
       }, 100);
+      
       setLastAddedSetId(null);
     }
   }, [lastAddedSetId, workout?.exercises]);
+
+  useEffect(() => {
+    if (lastAddedExerciseId && exerciseRefs.current[lastAddedExerciseId]) {
+      const exerciseElement = exerciseRefs.current[lastAddedExerciseId];
+      
+      setTimeout(() => {
+        exerciseElement?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center',
+          inline: 'nearest'
+        });
+      }, 200);
+      
+      setLastAddedExerciseId(null);
+    }
+  }, [lastAddedExerciseId, workout?.exercises]);
+
+  useEffect(() => {
+    if (workout?.exercises && workout.exercises.length > 0) {
+      const lastExercise = workout.exercises[workout.exercises.length - 1];
+      if (lastExercise && !lastAddedExerciseId) {
+        setLastAddedExerciseId(lastExercise.id);
+      }
+    }
+  }, [workout?.exercises?.length]);
 
   const formatDuration = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
@@ -265,7 +308,11 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
         {/* Exercises */}
         <div className="space-y-3">
           {workout.exercises.map((exercise) => (
-            <div key={exercise.id} className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20 animate-scale-in relative">
+            <div 
+              key={exercise.id} 
+              ref={(el) => exerciseRefs.current[exercise.id] = el}
+              className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20 animate-scale-in relative"
+            >
               {/* Exercise delete button */}
               <button
                 onClick={() => openDeleteDialog('exercise', exercise.id)}
@@ -282,7 +329,11 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
               {/* Sets */}
               <div className="space-y-2 mb-3">
                 {exercise.sets.map((set, index) => (
-                  <div key={set.id} className="bg-white/10 rounded-lg p-3 relative">
+                  <div 
+                    key={set.id} 
+                    ref={(el) => setRefs.current[set.id] = el}
+                    className="bg-white/10 rounded-lg p-3 relative"
+                  >
                     {/* Set delete button */}
                     <button
                       onClick={() => openDeleteDialog('set', exercise.id, set.id)}
