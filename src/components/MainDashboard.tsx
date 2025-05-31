@@ -76,7 +76,7 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({
   return <div className="min-h-screen text-white p-6 animate-fade-in">
       {/* Header */}
       <div className="mb-8 relative">
-        <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+        <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from- slate-200 to-blue-300 bg-clip-text text-transparent ">
           Pocket Lifts
         </h1>
         <p className="text-purple-200 text-lg">Track your fitness journey</p>
