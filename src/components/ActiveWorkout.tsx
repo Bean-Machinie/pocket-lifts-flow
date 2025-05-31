@@ -266,7 +266,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
   return (
     <div className="min-h-screen text-white flex flex-col animate-slide-in-right">
       {/* Sticky Header */}
-      <div className="sticky top-0 z-10 bg-gradient-to-b from-purple-900 via-purple-900 to-purple-900/95 backdrop-blur-sm border-b border-white/10">
+      <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-800 via-slate-800 to-slate-800/95 backdrop-blur-sm border-b border-white/10">
         <div className="flex justify-between items-center p-6">
           <div className="flex items-center space-x-3">
             <button
@@ -276,7 +276,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div>
-              <h1 className="text-2xl font-bold text-purple-200">Active Workout</h1>
+              <h1 className="text-2xl font-bold text-slate-200">Active Workout</h1>
               <div className="flex items-center space-x-2 mt-1">
                 <Clock className="w-4 h-4 text-blue-400" />
                 <span className="text-blue-300 text-sm">{formatDate(workout.startTime)}</span>
@@ -312,7 +312,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto px-6 pb-24">
+      <div className="flex-1 overflow-y-auto px-6 pb-20">
         {/* Stats Card - Now scrollable */}
         <div className="mt-4 mb-6">
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
@@ -446,10 +446,10 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
       </div>
 
       {/* Fixed Add Exercise Button */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-b from-purple-900 via-purple-900 to-purple-900/95 backdrop-blur-sm border-t border-white/10">
+      <div className="fixed bottom-0 left-0 right-0 p-3 bg-slate-800 border-t border-white/10">
         <button
           onClick={onAddExercise}
-          className="w-full bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl p-4 shadow-lg transform transition-all duration-200 hover:scale-105 active:scale-95"
+          className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl p-3 shadow-lg transform transition-all duration-200 hover:scale-105 active:scale-95"
         >
           <div className="flex items-center justify-center space-x-2">
             <Plus className="w-5 h-5" />
