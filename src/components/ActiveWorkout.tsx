@@ -5,7 +5,6 @@ import { DeleteConfirmDialog } from './DeleteConfirmDialog';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Input } from './ui/input';
 import { useSettings } from '@/contexts/SettingsContext';
-
 interface ActiveWorkoutProps {
   workout: Workout | null;
   onUpdateWorkout: (workout: Workout) => void;
@@ -279,7 +278,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
             {/* Duration - Centered at top with white color */}
             <div className="text-center mb-4">
               <div className="text-3xl font-bold text-white">{formatDuration(duration)}</div>
-              <div className="text-sm text-purple-200">Duration</div>
+              <div className="text-sm text-white/60">Duration</div>
             </div>
             
             {/* Nr. Exercises, Total Sets, Total Weight - Three columns in this order */}
