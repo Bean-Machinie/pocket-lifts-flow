@@ -277,8 +277,8 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
             {/* Duration - Centered at top with white color */}
             <div className="text-center mb-4">
-              <div className="text-3xl font-bold text-white">{formatDuration(duration)}</div>
-              <div className="text-sm text-white">Duration</div>
+              <div className="text-3xl font-bold text-slate-200">{formatDuration(duration)}</div>
+              <div className="text-sm text-slate-200">Duration</div>
             </div>
             
             {/* Nr. Exercises, Total Sets, Total Weight - Three columns in this order */}
@@ -359,7 +359,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
         </div>
 
         {workout.exercises.length === 0 && <div className="text-center py-12">
-            <p className="text-white mb-2">No exercises added yet</p>
+            <p className="text-slate-200 mb-2">No exercises added yet</p>
             <p className="text-blue-300 text-sm">Tap "Add Exercise" to get started!</p>
           </div>}
       </div>
