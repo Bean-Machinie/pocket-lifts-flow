@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ArrowLeft, ChevronRight, Plus, X } from 'lucide-react';
 import { AddMuscleGroupPanel } from './AddMuscleGroupPanel';
@@ -118,10 +117,13 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
     isOpen: boolean;
     groupKey: string;
     groupName: string;
+    exerciseName?: string;
+    type: 'group' | 'exercise';
   }>({
     isOpen: false,
     groupKey: '',
-    groupName: ''
+    groupName: '',
+    type: 'group'
   });
 
   const handleMuscleGroupSelect = (groupKey: string) => {
@@ -178,11 +180,35 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
     const { [groupKey]: deleted, ...remaining } = muscleGroups;
     setMuscleGroups(remaining);
     saveCustomMuscleGroups(remaining);
-    setDeleteDialog({ isOpen: false, groupKey: '', groupName: '' });
+    setDeleteDialog({ isOpen: false, groupKey: '', groupName: '', type: 'group' });
   };
 
-  const openDeleteDialog = (groupKey: string, groupName: string) => {
-    setDeleteDialog({ isOpen: true, groupKey, groupName });
+  const handleDeleteExercise = (groupKey: string, exerciseName: string) => {
+    const updatedGroups = {
+      ...muscleGroups,
+      [groupKey]: {
+        ...muscleGroups[groupKey],
+        exercises: muscleGroups[groupKey].exercises.filter(exercise => exercise !== exerciseName)
+      }
+    };
+    setMuscleGroups(updatedGroups);
+    saveCustomMuscleGroups(updatedGroups);
+    setDeleteDialog({ isOpen: false, groupKey: '', groupName: '', type: 'exercise' });
+  };
+
+  const openDeleteDialog = (groupKey: string, groupName: string, exerciseName?: string) => {
+    setDeleteDialog({ 
+      isOpen: true, 
+      groupKey, 
+      groupName, 
+      exerciseName,
+      type: exerciseName ? 'exercise' : 'group'
+    });
+  };
+
+  const isCustomExercise = (groupKey: string, exerciseName: string) => {
+    const originalExercises = MUSCLE_GROUPS[groupKey]?.exercises || [];
+    return !originalExercises.includes(exerciseName);
   };
 
   return (
@@ -261,7 +287,20 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
             >
               <div className="flex justify-between items-center">
                 <span className="text-lg font-medium text-white">{exercise}</span>
-                <ChevronRight className="w-5 h-5 text-purple-400" />
+                <div className="flex items-center space-x-2">
+                  {isCustomExercise(selectedMuscleGroup, exercise) && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openDeleteDialog(selectedMuscleGroup, muscleGroups[selectedMuscleGroup].name, exercise);
+                      }}
+                      className="p-1 text-red-400 hover:text-red-300"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                  <ChevronRight className="w-5 h-5 text-purple-400" />
+                </div>
               </div>
             </button>
           ))}
@@ -297,11 +336,21 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
       {/* Delete Confirmation Dialog */}
       <DeleteConfirmDialog
         isOpen={deleteDialog.isOpen}
-        onClose={() => setDeleteDialog({ isOpen: false, groupKey: '', groupName: '' })}
-        onConfirm={() => handleDeleteMuscleGroup(deleteDialog.groupKey)}
-        title="Delete Muscle Group"
-        message={`Are you sure you want to delete "${deleteDialog.groupName}"? This action cannot be undone.`}
-        confirmText="Delete"
+        onClose={() => setDeleteDialog({ isOpen: false, groupKey: '', groupName: '', type: 'group' })}
+        onConfirm={() => {
+          if (deleteDialog.type === 'exercise' && deleteDialog.exerciseName) {
+            handleDeleteExercise(deleteDialog.groupKey, deleteDialog.exerciseName);
+          } else {
+            handleDeleteMuscleGroup(deleteDialog.groupKey);
+          }
+        }}
+        title={deleteDialog.type === 'exercise' ? 'Delete Exercise' : 'Delete Muscle Group'}
+        message={
+          deleteDialog.type === 'exercise' 
+            ? `Are you sure you want to delete "${deleteDialog.exerciseName}"? This action cannot be undone.`
+            : `Are you sure you want to delete "${deleteDialog.groupName}"? This action cannot be undone.`
+        }
+        confirmText={deleteDialog.type === 'exercise' ? 'Delete Exercise' : 'Delete Muscle Group'}
       />
     </div>
   );
