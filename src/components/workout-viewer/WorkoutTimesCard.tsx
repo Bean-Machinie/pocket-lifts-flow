@@ -75,33 +75,33 @@ export const WorkoutTimesCard: React.FC<WorkoutTimesCardProps> = ({ workout, onU
 
   return (
     <div className="px-6 pb-4">
-      <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 space-y-3">
+      <div className="bg-card backdrop-blur-sm rounded-2xl p-4 border border-border shadow-sm space-y-3">
         {/* Start Time */}
         <div className="flex items-center justify-between">
-          <span className="text-purple-200 text-sm">Start Time</span>
+          <span className="text-muted-foreground text-sm">Start Time</span>
           {isEditingStartTime ? (
             <div className="flex items-center space-x-2">
               <input
                 type="time"
                 value={customStartTime}
                 onChange={(e) => setCustomStartTime(e.target.value)}
-                className="bg-white/20 rounded px-2 py-1 text-sm"
+                className="bg-accent rounded px-2 py-1 text-sm text-accent-foreground border border-border"
               />
-              <button onClick={updateStartTime} className="text-green-400 text-sm">
+              <button onClick={updateStartTime} className="text-primary text-sm hover:text-primary/80">
                 Save
               </button>
-              <button onClick={() => setIsEditingStartTime(false)} className="text-red-400 text-sm">
+              <button onClick={() => setIsEditingStartTime(false)} className="text-destructive text-sm hover:text-destructive/80">
                 Cancel
               </button>
             </div>
           ) : (
             <div className="flex items-center space-x-2">
-              <span className="text-white font-medium">{formatTime(workout.startTime)}</span>
+              <span className="text-card-foreground font-medium">{formatTime(workout.startTime)}</span>
               <button onClick={() => {
                 setIsEditingStartTime(true);
                 setCustomStartTime(formatTime(workout.startTime));
               }}>
-                <Edit3 className="w-3 h-3 text-blue-400" />
+                <Edit3 className="w-3 h-3 text-primary hover:text-primary/80" />
               </button>
             </div>
           )}
@@ -109,30 +109,30 @@ export const WorkoutTimesCard: React.FC<WorkoutTimesCardProps> = ({ workout, onU
 
         {/* End Time */}
         <div className="flex items-center justify-between">
-          <span className="text-purple-200 text-sm">End Time</span>
+          <span className="text-muted-foreground text-sm">End Time</span>
           {isEditingEndTime ? (
             <div className="flex items-center space-x-2">
               <input
                 type="time"
                 value={customEndTime}
                 onChange={(e) => setCustomEndTime(e.target.value)}
-                className="bg-white/20 rounded px-2 py-1 text-sm"
+                className="bg-accent rounded px-2 py-1 text-sm text-accent-foreground border border-border"
               />
-              <button onClick={updateEndTime} className="text-green-400 text-sm">
+              <button onClick={updateEndTime} className="text-primary text-sm hover:text-primary/80">
                 Save
               </button>
-              <button onClick={() => setIsEditingEndTime(false)} className="text-red-400 text-sm">
+              <button onClick={() => setIsEditingEndTime(false)} className="text-destructive text-sm hover:text-destructive/80">
                 Cancel
               </button>
             </div>
           ) : (
             <div className="flex items-center space-x-2">
-              <span className="text-white font-medium">{formatTime(getEndTime())}</span>
+              <span className="text-card-foreground font-medium">{formatTime(getEndTime())}</span>
               <button onClick={() => {
                 setIsEditingEndTime(true);
                 setCustomEndTime(formatTime(getEndTime()));
               }}>
-                <Edit3 className="w-3 h-3 text-blue-400" />
+                <Edit3 className="w-3 h-3 text-primary hover:text-primary/80" />
               </button>
             </div>
           )}

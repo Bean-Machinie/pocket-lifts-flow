@@ -22,18 +22,18 @@ export const SetCard: React.FC<SetCardProps> = ({
   const { settings } = useSettings();
 
   return (
-    <div className="bg-white/10 rounded-lg p-3 relative">
+    <div className="bg-accent/50 rounded-lg p-3 relative border border-border/50">
       {/* Set delete button */}
       <button
         onClick={() => onDeleteSet(exerciseId, set.id)}
-        className="absolute top-2 right-2 text-red-400 hover:text-red-300 p-1"
+        className="absolute top-2 right-2 text-destructive hover:text-destructive/80 p-1"
       >
         <X className="w-3 h-3" />
       </button>
 
       <div className="flex items-center space-x-2 mb-3">
-        <Hash className="w-3 h-3 text-purple-400" />
-        <span className="text-xs font-medium text-purple-200">Set {index + 1}</span>
+        <Hash className="w-3 h-3 text-primary" />
+        <span className="text-xs font-medium text-muted-foreground">Set {index + 1}</span>
       </div>
       
       {/* Weight, Reps, and Notes on same row */}
@@ -44,12 +44,12 @@ export const SetCard: React.FC<SetCardProps> = ({
             placeholder="0"
             value={set.weight || ''}
             onChange={(e) => onUpdateSet(exerciseId, set.id, 'weight', parseFloat(e.target.value) || 0)}
-            className="w-12 bg-transparent text-white text-center text-lg font-bold border-0 border-b border-white/30 focus:border-purple-400 focus:outline-none pb-1"
+            className="w-12 bg-transparent text-card-foreground text-center text-lg font-bold border-0 border-b border-border focus:border-primary focus:outline-none pb-1"
           />
-          <span className="text-xs text-gray-300">{settings.weightUnit}</span>
+          <span className="text-xs text-muted-foreground">{settings.weightUnit}</span>
         </div>
         
-        <span className="text-gray-400">×</span>
+        <span className="text-muted-foreground">×</span>
         
         <div className="flex items-center space-x-1">
           <input
@@ -57,9 +57,9 @@ export const SetCard: React.FC<SetCardProps> = ({
             placeholder="0"
             value={set.reps || ''}
             onChange={(e) => onUpdateSet(exerciseId, set.id, 'reps', parseInt(e.target.value) || 0)}
-            className="w-12 bg-transparent text-white text-center text-lg font-bold border-0 border-b border-white/30 focus:border-purple-400 focus:outline-none pb-1"
+            className="w-12 bg-transparent text-card-foreground text-center text-lg font-bold border-0 border-b border-border focus:border-primary focus:outline-none pb-1"
           />
-          <span className="text-xs text-gray-300">reps</span>
+          <span className="text-xs text-muted-foreground">reps</span>
         </div>
         
         <div className="flex-1">
@@ -68,7 +68,7 @@ export const SetCard: React.FC<SetCardProps> = ({
             placeholder="notes..."
             value={set.notes || ''}
             onChange={(e) => onUpdateSet(exerciseId, set.id, 'notes', e.target.value)}
-            className="w-full bg-transparent text-white text-sm border-0 border-b border-white/30 focus:border-purple-400 focus:outline-none pb-1 placeholder:text-gray-400"
+            className="w-full bg-transparent text-card-foreground text-sm border-0 border-b border-border focus:border-primary focus:outline-none pb-1 placeholder:text-muted-foreground"
           />
         </div>
       </div>

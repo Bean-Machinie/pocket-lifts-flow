@@ -26,22 +26,22 @@ export const WorkoutStatsCard: React.FC<WorkoutStatsCardProps> = ({ workout }) =
 
   return (
     <div className="px-6 pb-4">
-      <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+      <div className="bg-card backdrop-blur-sm rounded-2xl p-6 border border-border shadow-sm">
         {/* Duration - Centered at top */}
         <div className="text-center mb-4">
-          <div className="text-3xl font-bold text-purple-400">{formatDuration(workout.duration)}</div>
-          <div className="text-sm text-purple-200">Duration</div>
+          <div className="text-3xl font-bold text-primary">{formatDuration(workout.duration)}</div>
+          <div className="text-sm text-muted-foreground">Duration</div>
         </div>
         
         {/* Sets and Weight - Same row underneath */}
         <div className="grid grid-cols-2 gap-4">
           <div className="text-center">
-            <div className="text-xl font-bold text-blue-400">{workout.totalSets}</div>
-            <div className="text-xs text-blue-200">Total Sets</div>
+            <div className="text-xl font-bold text-accent-foreground">{workout.totalSets}</div>
+            <div className="text-xs text-muted-foreground">Total Sets</div>
           </div>
           <div className="text-center">
-            <div className="text-xl font-bold text-green-400">{formatTotalWeight(workout.totalWeight)}</div>
-            <div className="text-xs text-green-200">Total Weight</div>
+            <div className="text-xl font-bold text-accent-foreground">{formatTotalWeight(workout.totalWeight)}</div>
+            <div className="text-xs text-muted-foreground">Total Weight</div>
           </div>
         </div>
       </div>
