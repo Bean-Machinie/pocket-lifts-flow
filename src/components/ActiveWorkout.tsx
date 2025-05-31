@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Clock, ArrowLeft, Hash, X } from 'lucide-react';
 import { Workout, Exercise } from './WorkoutApp';
 import { DeleteConfirmDialog } from './DeleteConfirmDialog';
@@ -28,6 +27,9 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
     exerciseId?: string;
     setId?: string;
   }>({ isOpen: false, type: 'set' });
+  
+  const [lastAddedSetId, setLastAddedSetId] = useState<string | null>(null);
+  const weightInputRefs = useRef<{[key: string]: HTMLInputElement | null}>({});
 
   useEffect(() => {
     if (!workout) return;
@@ -40,6 +42,17 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
 
     return () => clearInterval(interval);
   }, [workout]);
+
+  useEffect(() => {
+    if (lastAddedSetId && weightInputRefs.current[lastAddedSetId]) {
+      const inputElement = weightInputRefs.current[lastAddedSetId];
+      setTimeout(() => {
+        inputElement?.focus();
+        inputElement?.select();
+      }, 100);
+      setLastAddedSetId(null);
+    }
+  }, [lastAddedSetId, workout?.exercises]);
 
   const formatDuration = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
@@ -82,8 +95,9 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
   const addSet = (exerciseId: string) => {
     if (!workout) return;
 
+    const newSetId = Date.now().toString();
     const newSet = {
-      id: Date.now().toString(),
+      id: newSetId,
       weight: 0,
       reps: 0,
       notes: '',
@@ -100,6 +114,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
     };
 
     updateWorkoutStats(updatedWorkout);
+    setLastAddedSetId(newSetId);
   };
 
   const updateSet = (exerciseId: string, setId: string, field: string, value: any) => {
@@ -285,6 +300,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
                     <div className="flex items-center space-x-3 pr-8">
                       <div className="flex items-center space-x-1">
                         <input
+                          ref={(el) => weightInputRefs.current[set.id] = el}
                           type="number"
                           placeholder="0"
                           value={set.weight || ''}
