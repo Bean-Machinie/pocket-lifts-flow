@@ -57,27 +57,27 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({
   };
 
   return (
-    <div className="min-h-screen text-foreground p-6 animate-fade-in">
+    <div className="min-h-screen text-white p-6 animate-fade-in">
       {/* Header */}
       <div className="mb-8 relative">
-        <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-transparent">
+        <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
           Pocket Lifts
         </h1>
-        <p className="text-muted-foreground text-lg">Track your fitness journey</p>
+        <p className="text-purple-200 text-lg">Track your fitness journey</p>
         
         {/* Settings Icon */}
         <button
           onClick={() => setIsSettingsOpen(true)}
-          className="absolute top-0 right-0 p-2 hover:bg-accent rounded-lg transition-colors"
+          className="absolute top-0 right-0 p-2 hover:bg-white/10 rounded-lg transition-colors"
         >
-          <Settings className="w-6 h-6 text-muted-foreground hover:text-foreground" />
+          <Settings className="w-6 h-6 text-purple-200 hover:text-white" />
         </button>
       </div>
 
       {/* Start Workout Button */}
       <button
         onClick={onStartWorkout}
-        className="w-full bg-primary text-primary-foreground rounded-3xl p-6 mb-8 shadow-lg transform transition-all duration-200 hover:scale-105 active:scale-95 border-2 border-primary/20"
+        className="w-full bg-gradient-to-r from-purple-600 to-blue-600 rounded-3xl p-6 mb-8 shadow-lg transform transition-all duration-200 hover:scale-105 active:scale-95"
       >
         <div className="flex items-center justify-center space-x-3">
           <Plus className="w-8 h-8" />
@@ -87,36 +87,36 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 gap-4 mb-8">
-        <div className="bg-card border-2 border-border rounded-2xl p-4 shadow-sm">
+        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
           <div className="flex items-center space-x-2 mb-1">
-            <TrendingUp className="w-5 h-5 text-primary" />
-            <span className="text-muted-foreground text-sm">Total Workouts</span>
+            <TrendingUp className="w-5 h-5 text-purple-400" />
+            <span className="text-purple-200 text-sm">Total Workouts</span>
           </div>
-          <span className="text-2xl font-bold text-card-foreground">{workoutHistory.length}</span>
+          <span className="text-2xl font-bold">{workoutHistory.length}</span>
         </div>
-        <div className="bg-card border-2 border-border rounded-2xl p-4 shadow-sm">
+        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
           <div className="flex items-center space-x-2 mb-1">
-            <Clock className="w-5 h-5 text-accent-foreground" />
-            <span className="text-muted-foreground text-sm">This Week</span>
+            <Clock className="w-5 h-5 text-blue-400" />
+            <span className="text-blue-200 text-sm">This Week</span>
           </div>
-          <span className="text-2xl font-bold text-card-foreground">{workoutHistory.slice(0, 7).length}</span>
+          <span className="text-2xl font-bold">{workoutHistory.slice(0, 7).length}</span>
         </div>
       </div>
 
       {/* Workout History */}
       <div className="mb-6">
-        <h2 className="text-xl font-semibold mb-4 text-foreground">Recent Workouts</h2>
+        <h2 className="text-xl font-semibold mb-4 text-purple-200">Recent Workouts</h2>
         {workoutHistory.length === 0 ? (
-          <div className="bg-card border-2 border-border rounded-2xl p-8 text-center shadow-sm">
-            <p className="text-card-foreground mb-2">No workouts yet</p>
-            <p className="text-muted-foreground text-sm">Start your first workout to see it here!</p>
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 text-center border border-white/20">
+            <p className="text-purple-200 mb-2">No workouts yet</p>
+            <p className="text-purple-300 text-sm">Start your first workout to see it here!</p>
           </div>
         ) : (
           <div className="space-y-3">
             {workoutHistory.slice(0, 5).map((workout) => (
               <div
                 key={workout.id}
-                className="w-full bg-card border-2 border-border rounded-2xl p-4 shadow-sm transform transition-all duration-200 hover:bg-accent hover:scale-[1.02] relative"
+                className="w-full bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 transform transition-all duration-200 hover:bg-white/15 hover:scale-[1.02] relative"
               >
                 {/* Delete button */}
                 <button
@@ -124,7 +124,7 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({
                     e.stopPropagation();
                     openDeleteDialog(workout.id);
                   }}
-                  className="absolute top-3 right-3 text-destructive hover:text-destructive/80 p-1"
+                  className="absolute top-3 right-3 text-red-400 hover:text-red-300 p-1"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -135,18 +135,18 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({
                 >
                   <div className="flex justify-between items-start mb-2">
                     <div>
-                      <p className="text-card-foreground font-medium">
+                      <p className="text-white font-medium">
                         {formatDate(workout.startTime)}
                       </p>
-                      <p className="text-muted-foreground text-sm">
+                      <p className="text-purple-200 text-sm">
                         {workout.exercises.length} exercises
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-accent-foreground font-semibold">
+                      <p className="text-blue-400 font-semibold">
                         {formatDuration(workout.duration)}
                       </p>
-                      <p className="text-muted-foreground text-sm">
+                      <p className="text-purple-200 text-sm">
                         {workout.totalSets} sets
                       </p>
                     </div>
@@ -155,13 +155,13 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({
                     {workout.exercises.slice(0, 3).map((exercise, index) => (
                       <span
                         key={index}
-                        className="bg-secondary text-secondary-foreground px-2 py-1 rounded-lg text-xs border border-border"
+                        className="bg-purple-600/30 text-purple-200 px-2 py-1 rounded-lg text-xs"
                       >
                         {exercise.name}
                       </span>
                     ))}
                     {workout.exercises.length > 3 && (
-                      <span className="text-muted-foreground text-xs py-1">
+                      <span className="text-purple-300 text-xs py-1">
                         +{workout.exercises.length - 3} more
                       </span>
                     )}
