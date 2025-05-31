@@ -183,7 +183,7 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({
                       <p className="text-white font-medium">
                         {formatDate(workout.startTime)}
                       </p>
-                      <p className="text-purple-200 text-sm">
+                      <p className="text-blue-200 text-sm">
                         {workout.exercises.length} exercises
                       </p>
                     </div>
@@ -191,13 +191,13 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({
                       <p className="text-blue-400 font-semibold">
                         {formatDuration(workout.duration)}
                       </p>
-                      <p className="text-purple-200 text-sm">
+                      <p className="text-blue-200 text-sm">
                         {workout.totalSets} sets
                       </p>
                     </div>
                   </div>
                   <div className="flex space-x-2">
-                    {workout.exercises.slice(0, 3).map((exercise, index) => <span key={index} className="bg-purple-600/30 text-purple-200 px-2 py-1 rounded-lg text-xs">
+                    {workout.exercises.slice(0, 3).map((exercise, index) => <span key={index} className="bg-blue-600/30 text-slate-200 px-2 py-1 rounded-lg text-xs">
                         {exercise.name}
                       </span>)}
                     {workout.exercises.length > 3 && <span className="text-purple-300 text-xs py-1">
