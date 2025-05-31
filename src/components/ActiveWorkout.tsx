@@ -309,7 +309,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
 
               <div className="mb-3 pr-8">
                 <h3 className="text-lg font-semibold text-white">{exercise.name}</h3>
-                <p className="text-purple-200 text-sm">{exercise.muscleGroup}</p>
+                <p className="text-blue-300 text-sm">{exercise.muscleGroup}</p>
               </div>
 
               {/* Sets */}
@@ -321,8 +321,8 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
                     </button>
 
                     <div className="flex items-center space-x-2 mb-3">
-                      <Hash className="w-3 h-3 text-purple-400" />
-                      <span className="text-xs font-medium text-purple-200">Set {index + 1}</span>
+                      <Hash className="w-3 h-3 text-slate-200" />
+                      <span className="text-xs font-medium text-slate-200">Set {index + 1}</span>
                     </div>
                     
                     {/* Weight, Reps, and Notes on same row */}
