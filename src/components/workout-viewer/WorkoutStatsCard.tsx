@@ -27,7 +27,7 @@ export const WorkoutStatsCard: React.FC<WorkoutStatsCardProps> = ({
         {/* Duration - Centered at top */}
         <div className="text-center mb-4">
           <div className="text-3xl font-bold text-slate-200">{formatDuration(workout.duration)}</div>
-          <div className="text-sm text-purple-200">Duration</div>
+          <div className="text-sm text-slate-200">Duration</div>
         </div>
         
         {/* Sets and Weight - Same row underneath */}
