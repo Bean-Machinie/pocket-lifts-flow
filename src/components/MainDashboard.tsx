@@ -83,7 +83,7 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({
         
         {/* Settings Icon */}
         <button onClick={() => setIsSettingsOpen(true)} className="absolute top-0 right-0 p-2 hover:bg-white/10 rounded-lg transition-colors">
-          <Settings className="w-6 h-6 text-purple-200 hover:text-white" />
+          <Settings className="w-6 h-6 text-slate-200 hover:text-blue" />
         </button>
       </div>
 
