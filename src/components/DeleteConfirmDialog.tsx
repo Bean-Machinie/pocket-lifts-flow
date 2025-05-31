@@ -47,7 +47,7 @@ export const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({
             <button onClick={onClose} className="flex-1 bg-white/10 text-white border border-white/20 rounded-xl py-3 font-medium hover:bg-white/15 hover:scale-[1.02] relative">
               Cancel
             </button>
-            <button onClick={onConfirm} className="flex-1 bg-red-500/80 text-white rounded-xl py-3 font-medium hover:bg-white/15 hover:scale-[1.02] relative">
+            <button onClick={onConfirm} className="flex-1 bg-red-500/80 text-white rounded-xl py-3 font-medium hover:bg-red hover:scale-[1.02] relative">
               {confirmText}
             </button>
           </div>
