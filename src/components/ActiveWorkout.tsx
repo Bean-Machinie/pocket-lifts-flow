@@ -301,7 +301,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
 
         {/* Exercises */}
         <div className="space-y-3">
-          {workout.exercises.map(exercise => <div key={exercise.id} ref={el => exerciseRefs.current[exercise.id] = el} className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20 animate-scale-in relative mb-4">
+          {workout.exercises.map(exercise => <div key={exercise.id} ref={el => exerciseRefs.current[exercise.id] = el} className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20 animate-scale-in relative mb-8">
               {/* Exercise delete button */}
               <button onClick={() => openDeleteDialog('exercise', exercise.id)} className="absolute top-2 right-2 text-red-400 hover:text-red-300 p-1">
                 <X className="w-4 h-4" />
