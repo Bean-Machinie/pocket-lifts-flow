@@ -58,17 +58,20 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
       const setElement = setRefs.current[lastAddedSetId];
       
       setTimeout(() => {
-        // Smooth scroll to the set
+        // Smooth scroll to the set with bottom padding to avoid going under the fixed button
         if (setElement && scrollAreaRef.current) {
           const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
           if (scrollContainer) {
             const setRect = setElement.getBoundingClientRect();
             const containerRect = scrollContainer.getBoundingClientRect();
             const scrollTop = scrollContainer.scrollTop;
-            const targetScrollTop = scrollTop + setRect.top - containerRect.top - containerRect.height / 2 + setRect.height / 2;
+            
+            // Add extra padding (120px) to ensure we don't scroll under the fixed button
+            const bottomPadding = 120;
+            const targetScrollTop = scrollTop + setRect.top - containerRect.top - containerRect.height / 2 + setRect.height / 2 + bottomPadding;
             
             scrollContainer.scrollTo({
-              top: targetScrollTop,
+              top: Math.max(0, targetScrollTop),
               behavior: 'smooth'
             });
           }
@@ -96,10 +99,13 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
             const exerciseRect = exerciseElement.getBoundingClientRect();
             const containerRect = scrollContainer.getBoundingClientRect();
             const scrollTop = scrollContainer.scrollTop;
-            const targetScrollTop = scrollTop + exerciseRect.top - containerRect.top - containerRect.height / 2 + exerciseRect.height / 2;
+            
+            // Add extra padding (120px) to ensure we don't scroll under the fixed button
+            const bottomPadding = 120;
+            const targetScrollTop = scrollTop + exerciseRect.top - containerRect.top - containerRect.height / 2 + exerciseRect.height / 2 + bottomPadding;
             
             scrollContainer.scrollTo({
-              top: targetScrollTop,
+              top: Math.max(0, targetScrollTop),
               behavior: 'smooth'
             });
           }
@@ -334,7 +340,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
       {/* Scrollable Content */}
       <div className="flex-1 relative">
         <ScrollArea ref={scrollAreaRef} className="h-full">
-          <div className="px-6 pb-24">
+          <div className="px-6 pb-32">
             {/* Stats Card - Now scrollable */}
             <div className="mt-4 mb-6">
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 transition-all duration-300 hover:bg-white/15">
