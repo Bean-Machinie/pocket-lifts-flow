@@ -36,6 +36,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
   const exerciseRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
   const setRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
 
+  // Calculate duration based on start time, not from workout.duration
   useEffect(() => {
     if (!workout) return;
 
@@ -46,7 +47,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [workout]);
+  }, [workout?.startTime]); // Only depend on startTime, not the entire workout
 
   useEffect(() => {
     if (lastAddedSetId && weightInputRefs.current[lastAddedSetId]) {
@@ -208,7 +209,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
       ...updatedWorkout,
       totalSets,
       totalWeight,
-      duration
+      duration // Use the live duration, not recalculated
     };
 
     onUpdateWorkout(finalWorkout);

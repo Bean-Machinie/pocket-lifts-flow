@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ArrowLeft, Clock, Edit3, Hash, Plus, X } from 'lucide-react';
 import { Workout, Exercise } from './WorkoutApp';
@@ -64,9 +65,14 @@ export const WorkoutViewer: React.FC<WorkoutViewerProps> = ({
     const newStartTime = new Date(workout.startTime);
     newStartTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
 
+    // Recalculate duration to maintain the same end time
+    const currentEndTime = new Date(workout.startTime.getTime() + (workout.duration * 1000));
+    const newDuration = Math.floor((currentEndTime.getTime() - newStartTime.getTime()) / 1000);
+
     const updatedWorkout = {
       ...workout,
-      startTime: newStartTime
+      startTime: newStartTime,
+      duration: Math.max(0, newDuration) // Ensure duration is not negative
     };
 
     onUpdateWorkout(updatedWorkout);
