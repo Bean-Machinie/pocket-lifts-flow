@@ -5,6 +5,7 @@ import { DeleteConfirmDialog } from './DeleteConfirmDialog';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Input } from './ui/input';
 import { useSettings } from '@/contexts/SettingsContext';
+
 interface ActiveWorkoutProps {
   workout: Workout | null;
   onUpdateWorkout: (workout: Workout) => void;
@@ -234,37 +235,37 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
     });
   };
   if (!workout) return null;
-  return <div className="min-h-screen text-white flex flex-col animate-slide-in-right">
+  return <div className="min-h-screen text-foreground flex flex-col animate-slide-in-right">
       {/* Sticky Header */}
-      <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-800 via-slate-800 to-slate-800/95 backdrop-blur-sm border-b border-white/10">
-        <div className="flex justify-between items-center p-6 bg-[#321661]">
+      <div className="sticky top-0 z-10 bg-gradient-to-b from-background via-background to-background/95 backdrop-blur-sm border-b border-border">
+        <div className="flex justify-between items-center p-6 bg-primary">
           <div className="flex items-center space-x-3">
-            <button onClick={onBack} className="bg-white/10 text-white p-2 rounded-xl border border-white/20">
+            <button onClick={onBack} className="bg-secondary text-secondary-foreground p-2 rounded-xl border border-border hover:bg-secondary/80 transition-colors">
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div>
-              <h1 className="text-2xl font-bold text-slate-200">Active Workout</h1>
+              <h1 className="text-2xl font-bold text-primary-foreground">Active Workout</h1>
               <div className="flex items-center space-x-2 mt-1">
                 <Clock className="w-4 h-4 text-blue-400" />
-                <span className="text-blue-300 text-sm">{formatDate(workout.startTime)}</span>
-                <span className="text-blue-300 text-sm">•</span>
+                <span className="text-primary-foreground/80 text-sm">{formatDate(workout.startTime)}</span>
+                <span className="text-primary-foreground/80 text-sm">•</span>
                 <Popover>
                   <PopoverTrigger asChild>
-                    <button className="text-blue-300 text-sm hover:text-blue-200 transition-colors">
+                    <button className="text-primary-foreground/80 text-sm hover:text-primary-foreground transition-colors">
                       {formatTime(workout.startTime)}
                     </button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-3 bg-gray-800 border-gray-600">
+                  <PopoverContent className="w-auto p-3 bg-popover border-border">
                     <div className="space-y-2">
-                      <label className="text-sm text-gray-300">Start time</label>
-                      <Input type="time" value={formatTime(workout.startTime)} onChange={e => updateStartTime(e.target.value)} className="bg-gray-700 border-gray-600 text-white" />
+                      <label className="text-sm text-popover-foreground">Start time</label>
+                      <Input type="time" value={formatTime(workout.startTime)} onChange={e => updateStartTime(e.target.value)} className="bg-background border-border text-foreground" />
                     </div>
                   </PopoverContent>
                 </Popover>
               </div>
             </div>
           </div>
-          <button onClick={handleEndWorkout} className="bg-green-500/20 text-green-400 p-2 rounded-xl border border-green-400/30 flex items-center space-x-2">
+          <button onClick={handleEndWorkout} className="bg-green-500/20 text-green-400 p-2 rounded-xl border border-green-400/30 flex items-center space-x-2 hover:bg-green-500/30 transition-colors">
             <span className="text-sm font-medium">Finish</span>
           </button>
         </div>
@@ -274,7 +275,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
       <div className="flex-1 overflow-y-auto px-6 pb-20">
         {/* Stats Card - Now scrollable */}
         <div className="mt-4 mb-6">
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+          <div className="bg-card backdrop-blur-sm rounded-2xl p-6 border border-border">
             {/* Duration - Centered at top */}
             <div className="text-center mb-4">
               <div className="text-3xl font-bold text-purple-400">{formatDuration(duration)}</div>
@@ -297,57 +298,57 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
 
         {/* Exercises */}
         <div className="space-y-3">
-          {workout.exercises.map(exercise => <div key={exercise.id} ref={el => exerciseRefs.current[exercise.id] = el} className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20 animate-scale-in relative">
+          {workout.exercises.map(exercise => <div key={exercise.id} ref={el => exerciseRefs.current[exercise.id] = el} className="bg-card backdrop-blur-sm rounded-xl p-3 border border-border animate-scale-in relative">
               {/* Exercise delete button */}
               <button onClick={() => openDeleteDialog('exercise', exercise.id)} className="absolute top-2 right-2 text-red-400 hover:text-red-300 p-1">
                 <X className="w-4 h-4" />
               </button>
 
               <div className="mb-3 pr-8">
-                <h3 className="text-lg font-semibold text-white">{exercise.name}</h3>
-                <p className="text-purple-200 text-sm">{exercise.muscleGroup}</p>
+                <h3 className="text-lg font-semibold text-card-foreground">{exercise.name}</h3>
+                <p className="text-muted-foreground text-sm">{exercise.muscleGroup}</p>
               </div>
 
               {/* Sets */}
               <div className="space-y-2 mb-3">
-                {exercise.sets.map((set, index) => <div key={set.id} ref={el => setRefs.current[set.id] = el} className="bg-white/10 rounded-lg p-3 relative">
+                {exercise.sets.map((set, index) => <div key={set.id} ref={el => setRefs.current[set.id] = el} className="bg-muted rounded-lg p-3 relative">
                     {/* Set delete button */}
                     <button onClick={() => openDeleteDialog('set', exercise.id, set.id)} className="absolute top-2 right-2 text-red-400 hover:text-red-300 p-1">
                       <X className="w-3 h-3" />
                     </button>
 
                     <div className="flex items-center space-x-2 mb-3">
-                      <Hash className="w-3 h-3 text-purple-400" />
-                      <span className="text-xs font-medium text-purple-200">Set {index + 1}</span>
+                      <Hash className="w-3 h-3 text-primary" />
+                      <span className="text-xs font-medium text-muted-foreground">Set {index + 1}</span>
                     </div>
                     
                     {/* Weight, Reps, and Notes on same row */}
                     <div className="flex items-center space-x-3 pr-8">
                       <div className="flex items-center space-x-1">
-                        <input ref={el => weightInputRefs.current[set.id] = el} type="number" placeholder="0" value={set.weight || ''} onChange={e => updateSet(exercise.id, set.id, 'weight', parseFloat(e.target.value) || 0)} className="w-12 bg-transparent text-white text-center text-lg font-bold border-0 border-b border-white/30 focus:border-purple-400 focus:outline-none pb-1" />
-                        <span className="text-xs text-gray-300">{settings.weightUnit}</span>
+                        <input ref={el => weightInputRefs.current[set.id] = el} type="number" placeholder="0" value={set.weight || ''} onChange={e => updateSet(exercise.id, set.id, 'weight', parseFloat(e.target.value) || 0)} className="w-12 bg-transparent text-foreground text-center text-lg font-bold border-0 border-b border-border focus:border-primary focus:outline-none pb-1" />
+                        <span className="text-xs text-muted-foreground">{settings.weightUnit}</span>
                       </div>
                       
-                      <span className="text-gray-400">×</span>
+                      <span className="text-muted-foreground">×</span>
                       
                       <div className="flex items-center space-x-1">
-                        <input type="number" placeholder="0" value={set.reps || ''} onChange={e => updateSet(exercise.id, set.id, 'reps', parseInt(e.target.value) || 0)} className="w-12 bg-transparent text-white text-center text-lg font-bold border-0 border-b border-white/30 focus:border-purple-400 focus:outline-none pb-1" />
-                        <span className="text-xs text-gray-300">reps</span>
+                        <input type="number" placeholder="0" value={set.reps || ''} onChange={e => updateSet(exercise.id, set.id, 'reps', parseInt(e.target.value) || 0)} className="w-12 bg-transparent text-foreground text-center text-lg font-bold border-0 border-b border-border focus:border-primary focus:outline-none pb-1" />
+                        <span className="text-xs text-muted-foreground">reps</span>
                       </div>
                       
                       <div className="flex-1">
-                        <input type="text" placeholder="notes..." value={set.notes || ''} onChange={e => updateSet(exercise.id, set.id, 'notes', e.target.value)} className="w-full bg-transparent text-white text-sm border-0 border-b border-white/30 focus:border-purple-400 focus:outline-none pb-1 placeholder:text-gray-400" />
+                        <input type="text" placeholder="notes..." value={set.notes || ''} onChange={e => updateSet(exercise.id, set.id, 'notes', e.target.value)} className="w-full bg-transparent text-foreground text-sm border-0 border-b border-border focus:border-primary focus:outline-none pb-1 placeholder:text-muted-foreground" />
                       </div>
                     </div>
                   </div>)}
                 
-                {exercise.sets.length === 0 && <p className="text-purple-300 text-sm text-center py-3">
+                {exercise.sets.length === 0 && <p className="text-muted-foreground text-sm text-center py-3">
                     No sets yet. Add your first set!
                   </p>}
               </div>
 
               {/* Add Set Button */}
-              <button onClick={() => addSet(exercise.id)} className="w-full bg-purple-600/30 text-purple-200 border border-purple-400/30 rounded-lg p-2.5 flex items-center justify-center space-x-2 hover:bg-purple-600/40 transition-colors">
+              <button onClick={() => addSet(exercise.id)} className="w-full bg-secondary text-secondary-foreground border border-border rounded-lg p-2.5 flex items-center justify-center space-x-2 hover:bg-secondary/80 transition-colors">
                 <Plus className="w-4 h-4" />
                 <span className="font-medium text-sm">Add Set</span>
               </button>
@@ -355,14 +356,14 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
         </div>
 
         {workout.exercises.length === 0 && <div className="text-center py-12">
-            <p className="text-purple-200 mb-2">No exercises added yet</p>
-            <p className="text-purple-300 text-sm">Tap "Add Exercise" to get started!</p>
+            <p className="text-muted-foreground mb-2">No exercises added yet</p>
+            <p className="text-muted-foreground text-sm">Tap "Add Exercise" to get started!</p>
           </div>}
       </div>
 
       {/* Fixed Add Exercise Button */}
-      <div className="fixed bottom-0 left-0 right-0 p-3 bg-slate-800 border-t border-white/10">
-        <button onClick={onAddExercise} className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl p-3 shadow-lg transform transition-all duration-200 hover:scale-105 active:scale-95">
+      <div className="fixed bottom-0 left-0 right-0 p-3 bg-background border-t border-border">
+        <button onClick={onAddExercise} className="w-full bg-primary text-primary-foreground rounded-2xl p-3 shadow-lg transform transition-all duration-200 hover:scale-105 active:scale-95 hover:bg-primary/90">
           <div className="flex items-center justify-center space-x-2">
             <Plus className="w-5 h-5" />
             <span className="font-semibold">Add Exercise</span>
