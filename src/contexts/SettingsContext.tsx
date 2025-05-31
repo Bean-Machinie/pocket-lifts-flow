@@ -27,11 +27,18 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   useEffect(() => {
     localStorage.setItem('app-settings', JSON.stringify(settings));
     
-    // Apply dark mode to document
+    // Apply dark mode with smooth transition
+    const root = document.documentElement;
+    
+    // Add transition class for smooth color changes
+    if (!root.style.transition) {
+      root.style.transition = 'background-color 0.3s ease, color 0.3s ease';
+    }
+    
     if (settings.isDarkMode) {
-      document.documentElement.classList.add('dark');
+      root.classList.add('dark');
     } else {
-      document.documentElement.classList.remove('dark');
+      root.classList.remove('dark');
     }
   }, [settings]);
 

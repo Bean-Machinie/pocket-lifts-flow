@@ -17,17 +17,17 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm">
-      <div className="fixed inset-y-0 right-0 w-80 bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700 shadow-xl">
+    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm animate-fade-in">
+      <div className={`fixed inset-y-0 right-0 w-80 bg-gradient-to-br from-purple-900/95 via-blue-900/95 to-indigo-900/95 dark:from-gray-900/95 dark:via-gray-800/95 dark:to-black/95 backdrop-blur-sm border-l border-white/20 dark:border-gray-700/50 shadow-xl ${isOpen ? 'animate-slide-in-right' : 'animate-slide-out-right'}`}>
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Settings</h2>
+          <div className="flex items-center justify-between p-6 border-b border-white/20 dark:border-gray-700/50">
+            <h2 className="text-xl font-semibold text-white">Settings</h2>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              className="p-2 hover:bg-white/10 dark:hover:bg-gray-800/50 rounded-lg transition-colors"
             >
-              <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+              <X className="w-5 h-5 text-purple-200 dark:text-gray-400" />
             </button>
           </div>
 
@@ -35,7 +35,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
           <div className="flex-1 p-6 space-y-6">
             {/* Dark Mode Setting */}
             <div className="space-y-2">
-              <Label htmlFor="dark-mode" className="text-base font-medium text-gray-900 dark:text-white">
+              <Label htmlFor="dark-mode" className="text-base font-medium text-white">
                 Dark Mode
               </Label>
               <div className="flex items-center space-x-3">
@@ -44,7 +44,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                   checked={settings.isDarkMode}
                   onCheckedChange={(checked) => updateSettings({ isDarkMode: checked })}
                 />
-                <span className="text-sm text-gray-600 dark:text-gray-400">
+                <span className="text-sm text-purple-200 dark:text-gray-400">
                   {settings.isDarkMode ? 'Enabled' : 'Disabled'}
                 </span>
               </div>
@@ -52,7 +52,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
 
             {/* Weight Unit Setting */}
             <div className="space-y-2">
-              <Label className="text-base font-medium text-gray-900 dark:text-white">
+              <Label className="text-base font-medium text-white">
                 Weight Unit
               </Label>
               <div className="flex space-x-2">
@@ -60,7 +60,10 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                   variant={settings.weightUnit === 'kg' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => updateSettings({ weightUnit: 'kg' })}
-                  className="flex-1"
+                  className={`flex-1 ${settings.weightUnit === 'kg' 
+                    ? 'bg-purple-600 hover:bg-purple-700 text-white border-purple-600' 
+                    : 'bg-white/10 hover:bg-white/20 text-white border-white/20 hover:border-white/30'
+                  }`}
                 >
                   Kilograms (kg)
                 </Button>
@@ -68,7 +71,10 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                   variant={settings.weightUnit === 'lbs' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => updateSettings({ weightUnit: 'lbs' })}
-                  className="flex-1"
+                  className={`flex-1 ${settings.weightUnit === 'lbs' 
+                    ? 'bg-purple-600 hover:bg-purple-700 text-white border-purple-600' 
+                    : 'bg-white/10 hover:bg-white/20 text-white border-white/20 hover:border-white/30'
+                  }`}
                 >
                   Pounds (lbs)
                 </Button>
@@ -77,8 +83,8 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
           </div>
 
           {/* Footer */}
-          <div className="p-6 border-t border-gray-200 dark:border-gray-700">
-            <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+          <div className="p-6 border-t border-white/20 dark:border-gray-700/50">
+            <p className="text-xs text-purple-200 dark:text-gray-400 text-center">
               Settings are saved automatically
             </p>
           </div>
