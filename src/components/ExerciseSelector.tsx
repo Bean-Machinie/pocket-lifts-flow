@@ -65,7 +65,7 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
   };
 
   return (
-    <div className="min-h-screen text-white p-6 animate-slide-in-right">
+    <div className="min-h-screen text-white p-6 animate-[slide-in-right_0.4s_cubic-bezier(0.25,0.46,0.45,0.94)] will-change-transform">
       {/* Header */}
       <div className="flex items-center space-x-4 mb-6">
         <button onClick={handleBack} className="p-2 rounded-xl bg-white/10 border border-white/20">
@@ -83,7 +83,7 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
 
       {/* Muscle Groups */}
       {!selectedMuscleGroup && (
-        <div className="space-y-3 animate-fade-in">
+        <div className="space-y-3 animate-[fade-in_0.5s_ease-out_0.1s_both]">
           {Object.entries(MUSCLE_GROUPS).map(([key, group]) => (
             <button
               key={key}
@@ -104,7 +104,7 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
 
       {/* Exercises */}
       {selectedMuscleGroup && (
-        <div className="space-y-3 animate-fade-in">
+        <div className="space-y-3 animate-[fade-in_0.4s_ease-out]">
           {MUSCLE_GROUPS[selectedMuscleGroup as keyof typeof MUSCLE_GROUPS].exercises.map((exercise) => (
             <button
               key={exercise}
