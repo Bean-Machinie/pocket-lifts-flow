@@ -328,19 +328,19 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
                     {/* Weight, Reps, and Notes on same row */}
                     <div className="flex items-center space-x-3 pr-8">
                       <div className="flex items-center space-x-1">
-                        <input ref={el => weightInputRefs.current[set.id] = el} type="number" placeholder="0" value={set.weight || ''} onChange={e => updateSet(exercise.id, set.id, 'weight', parseFloat(e.target.value) || 0)} className="w-12 bg-transparent text-white text-center text-lg font-bold border-0 border-b border-white/30 focus:border-purple-400 focus:outline-none pb-1" />
+                        <input ref={el => weightInputRefs.current[set.id] = el} type="number" placeholder="0" value={set.weight || ''} onChange={e => updateSet(exercise.id, set.id, 'weight', parseFloat(e.target.value) || 0)} className="w-12 bg-transparent text-white text-center text-lg font-bold border-0 border-b border-white/30 focus:border-blue-400 focus:outline-none pb-1" />
                         <span className="text-xs text-gray-300">{settings.weightUnit}</span>
                       </div>
                       
                       <span className="text-gray-400">×</span>
                       
                       <div className="flex items-center space-x-1">
-                        <input type="number" placeholder="0" value={set.reps || ''} onChange={e => updateSet(exercise.id, set.id, 'reps', parseInt(e.target.value) || 0)} className="w-12 bg-transparent text-white text-center text-lg font-bold border-0 border-b border-white/30 focus:border-purple-400 focus:outline-none pb-1" />
+                        <input type="number" placeholder="0" value={set.reps || ''} onChange={e => updateSet(exercise.id, set.id, 'reps', parseInt(e.target.value) || 0)} className="w-12 bg-transparent text-white text-center text-lg font-bold border-0 border-b border-white/30 focus:border-blue-400 focus:outline-none pb-1" />
                         <span className="text-xs text-gray-300">reps</span>
                       </div>
                       
                       <div className="flex-1">
-                        <input type="text" placeholder="notes..." value={set.notes || ''} onChange={e => updateSet(exercise.id, set.id, 'notes', e.target.value)} className="w-full bg-transparent text-white text-sm border-0 border-b border-white/30 focus:border-purple-400 focus:outline-none pb-1 placeholder:text-gray-400" />
+                        <input type="text" placeholder="notes..." value={set.notes || ''} onChange={e => updateSet(exercise.id, set.id, 'notes', e.target.value)} className="w-full bg-transparent text-white text-sm border-0 border-b border-white/30 focus:border-blue-400 focus:outline-none pb-1 placeholder:text-gray-400" />
                       </div>
                     </div>
                   </div>)}
