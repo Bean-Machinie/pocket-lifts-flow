@@ -59,11 +59,11 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
         if (element) {
           element.scrollIntoView({ 
             behavior: 'smooth', 
-            block: 'center',
+            block: 'start',
             inline: 'nearest'
           });
         }
-      }, 100);
+      }, 200);
     }
     
     // Check if new sets were added to existing exercises
@@ -78,11 +78,11 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
           if (element) {
             element.scrollIntoView({ 
               behavior: 'smooth', 
-              block: 'center',
+              block: 'nearest',
               inline: 'nearest'
             });
           }
-        }, 100);
+        }, 200);
       }
       
       previousSetCounts.current[exercise.id] = currentSetCount;
@@ -273,7 +273,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto px-6 pb-24">
+      <div className="flex-1 overflow-y-auto px-6 pb-6 scroll-smooth">
         {/* Stats Card - Now scrollable */}
         <div className="mt-4 mb-6">
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
