@@ -5,6 +5,7 @@ import { DeleteConfirmDialog } from './DeleteConfirmDialog';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Input } from './ui/input';
 import { useSettings } from '@/contexts/SettingsContext';
+
 interface ActiveWorkoutProps {
   workout: Workout | null;
   onUpdateWorkout: (workout: Workout) => void;
@@ -237,7 +238,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
   return <div className="min-h-screen text-white flex flex-col animate-slide-in-right">
       {/* Sticky Header */}
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-800 via-slate-800 to-slate-800/95 backdrop-blur-sm border-b border-white/10">
-        <div className="flex justify-between items-center p-6 bg-[#321661]">
+        <div className="flex justify-between items-center p-6 bg-purple-600 dark:bg-slate-800">
           <div className="flex items-center space-x-3">
             <button onClick={onBack} className="bg-white/10 text-white p-2 rounded-xl border border-white/20">
               <ArrowLeft className="w-5 h-5" />
@@ -361,7 +362,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
       </div>
 
       {/* Fixed Add Exercise Button */}
-      <div className="fixed bottom-0 left-0 right-0 p-3 bg-slate-800 border-t border-white/10">
+      <div className="fixed bottom-0 left-0 right-0 p-3 bg-purple-600 dark:bg-slate-800 border-t border-white/10">
         <button onClick={onAddExercise} className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl p-3 shadow-lg transform transition-all duration-200 hover:scale-105 active:scale-95">
           <div className="flex items-center justify-center space-x-2">
             <Plus className="w-5 h-5" />
