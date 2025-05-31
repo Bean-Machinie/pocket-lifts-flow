@@ -40,7 +40,7 @@ export const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({
         </button>
 
         <div className="text-center">
-          <h3 className="text-lg font-semibold text-white mb-2">{title}</h3>
+          <h3 className="text-lg font-semibold text-red mb-2">{title}</h3>
           <p className="text-white-200 text-sm mb-6">{message}</p>
           
           <div className="flex space-x-3">
