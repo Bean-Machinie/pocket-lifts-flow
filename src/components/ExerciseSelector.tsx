@@ -65,7 +65,7 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
   };
 
   return (
-    <div className="min-h-screen text-white p-6 transform translate-x-0 transition-transform duration-300 ease-out animate-slide-in-left">
+    <div className="min-h-screen text-white p-6 animate-slide-in-right">
       {/* Header */}
       <div className="flex items-center space-x-4 mb-6">
         <button onClick={handleBack} className="p-2 rounded-xl bg-white/10 border border-white/20">
