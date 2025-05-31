@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ArrowLeft, Clock, Edit3, Hash, Plus, X } from 'lucide-react';
 import { Workout, Exercise } from './WorkoutApp';
 import { DeleteConfirmDialog } from './DeleteConfirmDialog';
+import { useSettings } from '@/contexts/SettingsContext';
 
 interface WorkoutViewerProps {
   workout: Workout;
@@ -14,6 +15,7 @@ export const WorkoutViewer: React.FC<WorkoutViewerProps> = ({
   onBack,
   onUpdateWorkout
 }) => {
+  const { settings } = useSettings();
   const [isEditingStartTime, setIsEditingStartTime] = useState(false);
   const [isEditingEndTime, setIsEditingEndTime] = useState(false);
   const [customStartTime, setCustomStartTime] = useState('');
@@ -46,6 +48,13 @@ export const WorkoutViewer: React.FC<WorkoutViewerProps> = ({
       day: 'numeric',
       year: 'numeric'
     }).format(date);
+  };
+
+  const formatTotalWeight = (weight: number) => {
+    if (settings.weightUnit === 'lbs') {
+      return `${(weight * 2.20462).toFixed(0)}${settings.weightUnit}`;
+    }
+    return `${weight.toFixed(0)}${settings.weightUnit}`;
   };
 
   const updateStartTime = () => {
@@ -275,7 +284,7 @@ export const WorkoutViewer: React.FC<WorkoutViewerProps> = ({
               <div className="text-xs text-blue-200">Total Sets</div>
             </div>
             <div className="text-center">
-              <div className="text-xl font-bold text-green-400">{workout.totalWeight.toFixed(0)}kg</div>
+              <div className="text-xl font-bold text-green-400">{formatTotalWeight(workout.totalWeight)}</div>
               <div className="text-xs text-green-200">Total Weight</div>
             </div>
           </div>
@@ -327,7 +336,7 @@ export const WorkoutViewer: React.FC<WorkoutViewerProps> = ({
                           onChange={(e) => updateSet(exercise.id, set.id, 'weight', parseFloat(e.target.value) || 0)}
                           className="w-12 bg-transparent text-white text-center text-lg font-bold border-0 border-b border-white/30 focus:border-purple-400 focus:outline-none pb-1"
                         />
-                        <span className="text-xs text-gray-300">kg</span>
+                        <span className="text-xs text-gray-300">{settings.weightUnit}</span>
                       </div>
                       
                       <span className="text-gray-400">×</span>

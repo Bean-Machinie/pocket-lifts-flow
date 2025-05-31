@@ -4,6 +4,7 @@ import { Workout, Exercise } from './WorkoutApp';
 import { DeleteConfirmDialog } from './DeleteConfirmDialog';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Input } from './ui/input';
+import { useSettings } from '@/contexts/SettingsContext';
 
 interface ActiveWorkoutProps {
   workout: Workout | null;
@@ -20,6 +21,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
   onAddExercise,
   onBack
 }) => {
+  const { settings } = useSettings();
   const [duration, setDuration] = useState(0);
   const [deleteDialog, setDeleteDialog] = useState<{
     isOpen: boolean;
@@ -118,6 +120,20 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
       minute: '2-digit',
       hour12: false 
     });
+  };
+
+  const formatWeight = (weight: number) => {
+    if (settings.weightUnit === 'lbs') {
+      return (weight * 2.20462).toFixed(1);
+    }
+    return weight.toFixed(1);
+  };
+
+  const formatTotalWeight = (weight: number) => {
+    if (settings.weightUnit === 'lbs') {
+      return `${(weight * 2.20462).toFixed(0)}${settings.weightUnit}`;
+    }
+    return `${weight.toFixed(0)}${settings.weightUnit}`;
   };
 
   const updateStartTime = (newTime: string) => {
@@ -298,7 +314,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
                 <div className="text-xs text-blue-200">Total Sets</div>
               </div>
               <div className="text-center">
-                <div className="text-xl font-bold text-green-400">{workout.totalWeight.toFixed(0)}kg</div>
+                <div className="text-xl font-bold text-green-400">{formatTotalWeight(workout.totalWeight)}</div>
                 <div className="text-xs text-green-200">Total Weight</div>
               </div>
             </div>
@@ -358,7 +374,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
                           onChange={(e) => updateSet(exercise.id, set.id, 'weight', parseFloat(e.target.value) || 0)}
                           className="w-12 bg-transparent text-white text-center text-lg font-bold border-0 border-b border-white/30 focus:border-purple-400 focus:outline-none pb-1"
                         />
-                        <span className="text-xs text-gray-300">kg</span>
+                        <span className="text-xs text-gray-300">{settings.weightUnit}</span>
                       </div>
                       
                       <span className="text-gray-400">×</span>
