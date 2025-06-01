@@ -5,6 +5,9 @@ import { Workout } from '@/types/Workout';
 export interface ExercisePoint {
   date: string;        // ISO date (YYYY-MM-DD)
   avgWeight: number;   // average weight across sets that day
+  maxWeight: number;   // highest weight lifted that day (PR for that day)
+  totalSets: number;   // total number of sets that day
+  totalReps: number;   // total number of reps that day
 }
 
 export function useExerciseStats(
@@ -16,40 +19,82 @@ export function useExerciseStats(
   return useMemo(() => {
     if (!exerciseName || !workouts) return [];
 
+    console.log('useExerciseStats - Processing:', {
+      exerciseName,
+      workoutCount: workouts.length,
+      dateRange: { from: from.toISOString(), to: to.toISOString() }
+    });
+
     // Filter workouts within date range
     const filteredWorkouts = workouts.filter(workout => {
       const workoutDate = new Date(workout.startTime);
-      return workoutDate >= from && workoutDate <= to;
+      const isInRange = workoutDate >= from && workoutDate <= to;
+      console.log('Workout date check:', {
+        workoutId: workout.id,
+        workoutDate: workoutDate.toISOString(),
+        isInRange
+      });
+      return isInRange;
     });
 
+    console.log('Filtered workouts:', filteredWorkouts.length);
+
     // Group sets by date
-    const dailyWeights: Record<string, number[]> = {};
+    const dailyData: Record<string, {
+      weights: number[];
+      reps: number[];
+      setCount: number;
+    }> = {};
 
     filteredWorkouts.forEach(workout => {
       const dateKey = new Date(workout.startTime).toISOString().split('T')[0];
       
       workout.exercises.forEach(exercise => {
         if (exercise.name.toLowerCase() === exerciseName.toLowerCase()) {
+          console.log('Found matching exercise:', {
+            exerciseName: exercise.name,
+            sets: exercise.sets.length,
+            date: dateKey
+          });
+          
           exercise.sets.forEach(set => {
             if (set.weight > 0) { // Only include sets with actual weight
-              if (!dailyWeights[dateKey]) {
-                dailyWeights[dateKey] = [];
+              if (!dailyData[dateKey]) {
+                dailyData[dateKey] = {
+                  weights: [],
+                  reps: [],
+                  setCount: 0
+                };
               }
-              dailyWeights[dateKey].push(set.weight);
+              dailyData[dateKey].weights.push(set.weight);
+              dailyData[dateKey].reps.push(set.reps);
+              dailyData[dateKey].setCount++;
             }
           });
         }
       });
     });
 
-    // Calculate daily averages and sort by date
-    const points: ExercisePoint[] = Object.entries(dailyWeights)
-      .map(([date, weights]) => ({
-        date,
-        avgWeight: Math.round((weights.reduce((sum, weight) => sum + weight, 0) / weights.length) * 10) / 10
-      }))
+    console.log('Daily data:', dailyData);
+
+    // Calculate daily stats and sort by date
+    const points: ExercisePoint[] = Object.entries(dailyData)
+      .map(([date, data]) => {
+        const avgWeight = Math.round((data.weights.reduce((sum, weight) => sum + weight, 0) / data.weights.length) * 10) / 10;
+        const maxWeight = Math.max(...data.weights);
+        const totalReps = data.reps.reduce((sum, reps) => sum + reps, 0);
+        
+        return {
+          date,
+          avgWeight,
+          maxWeight,
+          totalSets: data.setCount,
+          totalReps
+        };
+      })
       .sort((a, b) => a.date.localeCompare(b.date));
 
+    console.log('Final points:', points);
     return points;
   }, [workouts, exerciseName, from, to]);
 }

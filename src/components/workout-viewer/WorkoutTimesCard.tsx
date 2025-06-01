@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Edit3, Calendar, Clock, AlertTriangle } from 'lucide-react';
 import { Workout } from '../WorkoutApp';
@@ -229,7 +228,6 @@ export const WorkoutTimesCard: React.FC<WorkoutTimesCardProps> = ({
         title="Duration Will Be Recalculated"
         message="You're making a significant time change. This will recalculate the workout duration based on the new start/end times. Do you want to continue?"
         confirmText="Update Time"
-        icon={<AlertTriangle className="w-6 h-6 text-yellow-500" />}
       />
     </>
   );

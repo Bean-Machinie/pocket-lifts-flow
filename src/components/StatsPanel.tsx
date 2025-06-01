@@ -21,6 +21,7 @@ export const StatsPanel: React.FC<StatsPanelProps> = ({
   const [dateRange, setDateRange] = useState<'7d' | '30d' | 'custom'>('30d');
   const [customFromDate, setCustomFromDate] = useState<string>('');
   const [customToDate, setCustomToDate] = useState<string>('');
+  const [dataType, setDataType] = useState<'both' | 'average' | 'max'>('both');
 
   // Get unique exercise names
   const exerciseNames = useMemo(() => {
@@ -97,6 +98,45 @@ export const StatsPanel: React.FC<StatsPanelProps> = ({
               </SelectContent>
             </Select>
           </div>
+
+          {/* Data Type Picker */}
+          {selectedExercise && (
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+              <label className="block text-slate-200 text-sm font-medium mb-3">Data Display</label>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => setDataType('both')}
+                  className={`px-4 py-2 rounded-lg transition-colors ${
+                    dataType === 'both' 
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-white/10 text-slate-200 hover:bg-white/20'
+                  }`}
+                >
+                  Both
+                </button>
+                <button
+                  onClick={() => setDataType('average')}
+                  className={`px-4 py-2 rounded-lg transition-colors ${
+                    dataType === 'average' 
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-white/10 text-slate-200 hover:bg-white/20'
+                  }`}
+                >
+                  Average
+                </button>
+                <button
+                  onClick={() => setDataType('max')}
+                  className={`px-4 py-2 rounded-lg transition-colors ${
+                    dataType === 'max' 
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-white/10 text-slate-200 hover:bg-white/20'
+                  }`}
+                >
+                  PR (Max)
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Date Range Picker */}
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
@@ -184,7 +224,10 @@ export const StatsPanel: React.FC<StatsPanelProps> = ({
                     />
                     <Tooltip 
                       labelFormatter={(value) => formatDate(value as string)}
-                      formatter={(value: number) => [`${value} ${settings.weightUnit}`, 'Average Weight']}
+                      formatter={(value: number, name: string) => [
+                        `${value} ${settings.weightUnit}`, 
+                        name === 'avgWeight' ? 'Average Weight' : 'Max Weight (PR)'
+                      ]}
                       contentStyle={{
                         backgroundColor: '#1F2937',
                         border: '1px solid #374151',
@@ -192,15 +235,42 @@ export const StatsPanel: React.FC<StatsPanelProps> = ({
                         color: '#F3F4F6'
                       }}
                     />
-                    <Line 
-                      type="monotone" 
-                      dataKey="avgWeight" 
-                      stroke="#3B82F6" 
-                      strokeWidth={2}
-                      dot={{ fill: '#3B82F6', strokeWidth: 2, r: 4 }}
-                    />
+                    {(dataType === 'both' || dataType === 'average') && (
+                      <Line 
+                        type="monotone" 
+                        dataKey="avgWeight" 
+                        stroke="#3B82F6" 
+                        strokeWidth={2}
+                        dot={{ fill: '#3B82F6', strokeWidth: 2, r: 4 }}
+                        name="avgWeight"
+                      />
+                    )}
+                    {(dataType === 'both' || dataType === 'max') && (
+                      <Line 
+                        type="monotone" 
+                        dataKey="maxWeight" 
+                        stroke="#EF4444" 
+                        strokeWidth={2}
+                        dot={{ fill: '#EF4444', strokeWidth: 2, r: 4 }}
+                        name="maxWeight"
+                      />
+                    )}
                   </LineChart>
                 </ResponsiveContainer>
+              </div>
+              
+              {/* Stats Summary */}
+              <div className="mt-4 grid grid-cols-2 gap-4">
+                <div className="bg-white/5 rounded-lg p-3">
+                  <div className="text-xs text-gray-400">Total Workouts</div>
+                  <div className="text-lg font-bold text-white">{exerciseData.length}</div>
+                </div>
+                <div className="bg-white/5 rounded-lg p-3">
+                  <div className="text-xs text-gray-400">All-Time PR</div>
+                  <div className="text-lg font-bold text-red-400">
+                    {Math.max(...exerciseData.map(d => d.maxWeight))} {settings.weightUnit}
+                  </div>
+                </div>
               </div>
             </div>
           ) : selectedExercise ? (

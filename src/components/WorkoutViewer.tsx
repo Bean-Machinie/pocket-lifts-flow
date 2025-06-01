@@ -78,6 +78,8 @@ export const WorkoutViewer: React.FC<WorkoutViewerProps> = ({
       totalSets,
       totalWeight
     };
+    
+    // Always call onUpdateWorkout to ensure changes propagate to the parent
     onUpdateWorkout(finalWorkout);
   };
 
@@ -125,11 +127,16 @@ export const WorkoutViewer: React.FC<WorkoutViewerProps> = ({
     openDeleteDialog('exercise', exerciseId);
   };
 
+  // Enhanced update handler that ensures proper propagation
+  const handleWorkoutUpdate = (updatedWorkout: Workout) => {
+    updateWorkoutStats(updatedWorkout);
+  };
+
   return (
     <div className="min-h-screen text-white flex flex-col animate-slide-in-right">
       <WorkoutHeader onBack={onBack} workoutDate={formatDate(workout.startTime)} />
 
-      <WorkoutTimesCard workout={workout} onUpdateWorkout={onUpdateWorkout} />
+      <WorkoutTimesCard workout={workout} onUpdateWorkout={handleWorkoutUpdate} />
 
       <WorkoutStatsCard workout={workout} />
 
