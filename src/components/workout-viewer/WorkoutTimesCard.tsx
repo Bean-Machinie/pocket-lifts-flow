@@ -162,12 +162,12 @@ export const WorkoutTimesCard: React.FC<WorkoutTimesCardProps> = ({
             <div>
               <span className="text-xs text-gray-500 block mb-2">Time</span>
               <div className="grid grid-cols-2 gap-2">
-                <select value={endTime.getHours()} onChange={e => updateEndDateTime(undefined, parseInt(e.target.value))} className="w-full bg-gray-800/80 text-white rounded-lg px-2 py-3 text-center border border-gray-600 focus:border-blue-500 focus:outline-none text-sm font-medium">
+                <select value={endTime.getHours()} onChange={e => updateEndDateTime(undefined, parseInt(e.target.value))} className="w-full bg-gray-800/80 text-white rounded-lg px-0 py-3 text-center border border-gray-600 focus:border-blue-500 focus:outline-none text-sm font-medium">
                   {hours.map(hour => <option key={hour} value={hour}>
                       {hour.toString().padStart(2, '0')}
                     </option>)}
                 </select>
-                <select value={endTime.getMinutes()} onChange={e => updateEndDateTime(undefined, undefined, parseInt(e.target.value))} className="w-full bg-gray-800/80 text-white rounded-lg px-2 py-3 text-center border border-gray-600 focus:border-blue-500 focus:outline-none text-sm font-medium">
+                <select value={endTime.getMinutes()} onChange={e => updateEndDateTime(undefined, undefined, parseInt(e.target.value))} className="w-full bg-gray-800/80 text-white rounded-lg px-0 py-3 text-center border border-gray-600 focus:border-blue-500 focus:outline-none text-sm font-medium">
                   {minutes.map(minute => <option key={minute} value={minute}>
                       {minute.toString().padStart(2, '0')}
                     </option>)}
