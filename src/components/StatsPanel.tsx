@@ -13,7 +13,7 @@ interface StatsPanelProps {
 }
 
 export const StatsPanel: React.FC<StatsPanelProps> = ({
-  workouts,
+  workouts = [], // Default to empty array to prevent undefined errors
   onBack
 }) => {
   const { settings } = useSettings();

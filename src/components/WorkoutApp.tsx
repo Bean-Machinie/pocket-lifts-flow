@@ -161,6 +161,7 @@ export const WorkoutApp: React.FC = () => {
       case 'stats':
         return (
           <StatsPanel
+            workouts={workoutHistory}
             onBack={() => setCurrentScreen('dashboard')}
           />
         );
