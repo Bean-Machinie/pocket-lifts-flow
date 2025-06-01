@@ -2,6 +2,11 @@
 import React, { useState } from 'react';
 import { Calendar, Clock, X } from 'lucide-react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '../ui/drawer';
+import { Button } from '../ui/button';
+import { Calendar as CalendarComponent } from '../ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 interface WorkoutDateTimePickerProps {
   isOpen: boolean;
@@ -22,14 +27,7 @@ export const WorkoutDateTimePicker: React.FC<WorkoutDateTimePickerProps> = ({
 }) => {
   const [selectedDate, setSelectedDate] = useState(initialDate);
 
-  // Generate arrays for the pickers
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 10 }, (_, i) => currentYear - 5 + i);
-  const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ];
-  const days = Array.from({ length: 31 }, (_, i) => i + 1);
+  // Generate arrays for the time pickers
   const hours = Array.from({ length: 24 }, (_, i) => i);
   const minutes = Array.from({ length: 60 }, (_, i) => i);
 
@@ -38,24 +36,12 @@ export const WorkoutDateTimePicker: React.FC<WorkoutDateTimePickerProps> = ({
     onClose();
   };
 
-  const updateDate = (field: string, value: number) => {
+  const updateTime = (field: 'hour' | 'minute', value: number) => {
     const newDate = new Date(selectedDate);
-    switch (field) {
-      case 'year':
-        newDate.setFullYear(value);
-        break;
-      case 'month':
-        newDate.setMonth(value);
-        break;
-      case 'day':
-        newDate.setDate(value);
-        break;
-      case 'hour':
-        newDate.setHours(value);
-        break;
-      case 'minute':
-        newDate.setMinutes(value);
-        break;
+    if (field === 'hour') {
+      newDate.setHours(value);
+    } else {
+      newDate.setMinutes(value);
     }
     setSelectedDate(newDate);
   };
@@ -109,54 +95,30 @@ export const WorkoutDateTimePicker: React.FC<WorkoutDateTimePickerProps> = ({
               <Calendar className="w-5 h-5 text-blue-400" />
               <span>Date</span>
             </h3>
-            <div className="grid grid-cols-3 gap-4">
-              {/* Month */}
-              <div className="flex flex-col items-center">
-                <label className="text-sm text-gray-400 mb-2">Month</label>
-                <select
-                  value={selectedDate.getMonth()}
-                  onChange={(e) => updateDate('month', parseInt(e.target.value))}
-                  className="bg-gray-800 text-white rounded-lg px-3 py-2 text-center border border-gray-600 focus:border-blue-500 focus:outline-none w-full"
-                >
-                  {months.map((month, index) => (
-                    <option key={index} value={index}>
-                      {month.substring(0, 3)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Day */}
-              <div className="flex flex-col items-center">
-                <label className="text-sm text-gray-400 mb-2">Day</label>
-                <select
-                  value={selectedDate.getDate()}
-                  onChange={(e) => updateDate('day', parseInt(e.target.value))}
-                  className="bg-gray-800 text-white rounded-lg px-3 py-2 text-center border border-gray-600 focus:border-blue-500 focus:outline-none w-full"
-                >
-                  {days.map((day) => (
-                    <option key={day} value={day}>
-                      {day}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Year */}
-              <div className="flex flex-col items-center">
-                <label className="text-sm text-gray-400 mb-2">Year</label>
-                <select
-                  value={selectedDate.getFullYear()}
-                  onChange={(e) => updateDate('year', parseInt(e.target.value))}
-                  className="bg-gray-800 text-white rounded-lg px-3 py-2 text-center border border-gray-600 focus:border-blue-500 focus:outline-none w-full"
-                >
-                  {years.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <div className="flex justify-center">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal bg-gray-800 border-gray-600 text-white hover:bg-gray-700",
+                      "max-w-sm"
+                    )}
+                  >
+                    <Calendar className="mr-2 h-4 w-4" />
+                    {format(selectedDate, "PPP")}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="center">
+                  <CalendarComponent
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={(date) => date && setSelectedDate(date)}
+                    initialFocus
+                    className="pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
 
@@ -172,7 +134,7 @@ export const WorkoutDateTimePicker: React.FC<WorkoutDateTimePickerProps> = ({
                 <label className="text-sm text-gray-400 mb-2">Hour</label>
                 <select
                   value={selectedDate.getHours()}
-                  onChange={(e) => updateDate('hour', parseInt(e.target.value))}
+                  onChange={(e) => updateTime('hour', parseInt(e.target.value))}
                   className="bg-gray-800 text-white rounded-lg px-3 py-2 text-center border border-gray-600 focus:border-blue-500 focus:outline-none w-full"
                 >
                   {hours.map((hour) => (
@@ -188,7 +150,7 @@ export const WorkoutDateTimePicker: React.FC<WorkoutDateTimePickerProps> = ({
                 <label className="text-sm text-gray-400 mb-2">Minute</label>
                 <select
                   value={selectedDate.getMinutes()}
-                  onChange={(e) => updateDate('minute', parseInt(e.target.value))}
+                  onChange={(e) => updateTime('minute', parseInt(e.target.value))}
                   className="bg-gray-800 text-white rounded-lg px-3 py-2 text-center border border-gray-600 focus:border-blue-500 focus:outline-none w-full"
                 >
                   {minutes.map((minute) => (
