@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Clock, ArrowLeft, Hash, X } from 'lucide-react';
 import { Workout, Exercise } from './WorkoutApp';
 import { DeleteConfirmDialog } from './DeleteConfirmDialog';
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-import { Input } from './ui/input';
+import { DateTimePicker } from './DateTimePicker';
 import { useSettings } from '@/contexts/SettingsContext';
+
 interface ActiveWorkoutProps {
   workout: Workout | null;
   onUpdateWorkout: (workout: Workout) => void;
@@ -12,6 +12,7 @@ interface ActiveWorkoutProps {
   onAddExercise: () => void;
   onBack: () => void;
 }
+
 export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
   workout,
   onUpdateWorkout,
@@ -32,6 +33,7 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
     isOpen: false,
     type: 'set'
   });
+  const [dateTimePickerOpen, setDateTimePickerOpen] = useState(false);
   const [lastAddedSetId, setLastAddedSetId] = useState<string | null>(null);
   const [lastAddedExerciseId, setLastAddedExerciseId] = useState<string | null>(null);
   const weightInputRefs = useRef<{
@@ -131,14 +133,11 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
     }
     return `${weight.toFixed(0)}${settings.weightUnit}`;
   };
-  const updateStartTime = (newTime: string) => {
-    if (!workout || !newTime) return;
-    const [hours, minutes] = newTime.split(':');
-    const newStartTime = new Date(workout.startTime);
-    newStartTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+  const updateStartTime = (newDate: Date) => {
+    if (!workout) return;
     const updatedWorkout = {
       ...workout,
-      startTime: newStartTime
+      startTime: newDate
     };
     onUpdateWorkout(updatedWorkout);
   };
@@ -248,19 +247,12 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
                 <Clock className="w-4 h-4 text-blue-400" />
                 <span className="text-blue-300 text-sm">{formatDate(workout.startTime)}</span>
                 <span className="text-blue-300 text-sm">•</span>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button className="text-blue-300 text-sm hover:text-blue-200 transition-colors">
-                      {formatTime(workout.startTime)}
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-3 bg-gray-800 border-gray-600">
-                    <div className="space-y-2">
-                      <label className="text-sm text-gray-300">Start time</label>
-                      <Input type="time" value={formatTime(workout.startTime)} onChange={e => updateStartTime(e.target.value)} className="bg-gray-700 border-gray-600 text-white" />
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                <button
+                  onClick={() => setDateTimePickerOpen(true)}
+                  className="text-blue-300 text-sm hover:text-blue-200 transition-colors"
+                >
+                  {formatTime(workout.startTime)}
+                </button>
               </div>
             </div>
           </div>
@@ -374,16 +366,28 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
         </button>
       </div>
 
+      {/* Date Time Picker */}
+      <DateTimePicker
+        isOpen={dateTimePickerOpen}
+        onClose={() => setDateTimePickerOpen(false)}
+        onSave={updateStartTime}
+        initialDate={workout.startTime}
+      />
+
       {/* Delete Confirmation Dialog */}
-      <DeleteConfirmDialog isOpen={deleteDialog.isOpen} onClose={() => setDeleteDialog({
-      isOpen: false,
-      type: 'set'
-    })} onConfirm={() => {
-      if (deleteDialog.type === 'set' && deleteDialog.exerciseId && deleteDialog.setId) {
-        deleteSet(deleteDialog.exerciseId, deleteDialog.setId);
-      } else if (deleteDialog.type === 'exercise' && deleteDialog.exerciseId) {
-        deleteExercise(deleteDialog.exerciseId);
-      }
-    }} title={deleteDialog.type === 'set' ? 'Delete Set' : 'Delete Exercise'} message={deleteDialog.type === 'set' ? 'Are you sure you want to delete this set? This action cannot be undone.' : 'Are you sure you want to delete this exercise? This will remove all sets and cannot be undone.'} confirmText={deleteDialog.type === 'set' ? 'Delete Set' : 'Delete Exercise'} />
+      <DeleteConfirmDialog
+        isOpen={deleteDialog.isOpen}
+        onClose={() => setDeleteDialog({ isOpen: false, type: 'set' })}
+        onConfirm={() => {
+          if (deleteDialog.type === 'set' && deleteDialog.exerciseId && deleteDialog.setId) {
+            deleteSet(deleteDialog.exerciseId, deleteDialog.setId);
+          } else if (deleteDialog.type === 'exercise' && deleteDialog.exerciseId) {
+            deleteExercise(deleteDialog.exerciseId);
+          }
+        }}
+        title={deleteDialog.type === 'set' ? 'Delete Set' : 'Delete Exercise'}
+        message={deleteDialog.type === 'set' ? 'Are you sure you want to delete this set? This action cannot be undone.' : 'Are you sure you want to delete this exercise? This will remove all sets and cannot be undone.'}
+        confirmText={deleteDialog.type === 'set' ? 'Delete Set' : 'Delete Exercise'}
+      />
     </div>;
 };
