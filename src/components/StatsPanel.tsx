@@ -1,11 +1,16 @@
 
 import React, { useState, useMemo } from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Calendar } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Workout } from '@/types/Workout';
 import { useExerciseStats } from '@/hooks/useExerciseStats';
 import { useSettings } from '@/contexts/SettingsContext';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 interface StatsPanelProps {
   workouts: Workout[];
@@ -18,9 +23,9 @@ export const StatsPanel: React.FC<StatsPanelProps> = ({
 }) => {
   const { settings } = useSettings();
   const [selectedExercise, setSelectedExercise] = useState<string>('');
-  const [dateRange, setDateRange] = useState<'7d' | '30d' | 'custom'>('30d');
-  const [customFromDate, setCustomFromDate] = useState<string>('');
-  const [customToDate, setCustomToDate] = useState<string>('');
+  const [dateRange, setDateRange] = useState<'1d' | '7d' | '30d' | 'custom'>('1d');
+  const [customFromDate, setCustomFromDate] = useState<Date | undefined>();
+  const [customToDate, setCustomToDate] = useState<Date | undefined>();
   const [dataType, setDataType] = useState<'both' | 'average' | 'max'>('both');
 
   // Get unique exercise names
@@ -40,13 +45,15 @@ export const StatsPanel: React.FC<StatsPanelProps> = ({
     let from: Date;
     let to: Date = now;
 
-    if (dateRange === '7d') {
+    if (dateRange === '1d') {
+      from = new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000);
+    } else if (dateRange === '7d') {
       from = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     } else if (dateRange === '30d') {
       from = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
     } else {
-      from = customFromDate ? new Date(customFromDate) : new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-      to = customToDate ? new Date(customToDate) : now;
+      from = customFromDate || new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      to = customToDate || now;
     }
 
     return { fromDate: from, toDate: to };
@@ -103,7 +110,7 @@ export const StatsPanel: React.FC<StatsPanelProps> = ({
           {selectedExercise && (
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
               <label className="block text-slate-200 text-sm font-medium mb-3">Data Display</label>
-              <div className="flex space-x-3">
+              <div className="flex flex-wrap gap-2">
                 <button
                   onClick={() => setDataType('both')}
                   className={`px-4 py-2 rounded-lg transition-colors ${
@@ -141,7 +148,17 @@ export const StatsPanel: React.FC<StatsPanelProps> = ({
           {/* Date Range Picker */}
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
             <label className="block text-slate-200 text-sm font-medium mb-3">Time Period</label>
-            <div className="flex space-x-3 mb-4">
+            <div className="flex flex-wrap gap-2 mb-4">
+              <button
+                onClick={() => setDateRange('1d')}
+                className={`px-4 py-2 rounded-lg transition-colors ${
+                  dateRange === '1d' 
+                    ? 'bg-blue-600 text-white' 
+                    : 'bg-white/10 text-slate-200 hover:bg-white/20'
+                }`}
+              >
+                1 day
+              </button>
               <button
                 onClick={() => setDateRange('7d')}
                 className={`px-4 py-2 rounded-lg transition-colors ${
@@ -175,24 +192,60 @@ export const StatsPanel: React.FC<StatsPanelProps> = ({
             </div>
 
             {dateRange === 'custom' && (
-              <div className="flex space-x-3">
-                <div className="flex-1">
-                  <label className="block text-slate-300 text-xs mb-1">From</label>
-                  <input
-                    type="date"
-                    value={customFromDate}
-                    onChange={(e) => setCustomFromDate(e.target.value)}
-                    className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white"
-                  />
-                </div>
-                <div className="flex-1">
-                  <label className="block text-slate-300 text-xs mb-1">To</label>
-                  <input
-                    type="date"
-                    value={customToDate}
-                    onChange={(e) => setCustomToDate(e.target.value)}
-                    className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white"
-                  />
+              <div className="space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-slate-300 text-xs mb-2">From Date</label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal bg-white/10 border-white/20 text-white hover:bg-white/20",
+                            !customFromDate && "text-slate-400"
+                          )}
+                        >
+                          <Calendar className="mr-2 h-4 w-4" />
+                          {customFromDate ? format(customFromDate, "PPP") : <span>Pick a date</span>}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <CalendarComponent
+                          mode="single"
+                          selected={customFromDate}
+                          onSelect={setCustomFromDate}
+                          initialFocus
+                          className="pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div>
+                    <label className="block text-slate-300 text-xs mb-2">To Date</label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal bg-white/10 border-white/20 text-white hover:bg-white/20",
+                            !customToDate && "text-slate-400"
+                          )}
+                        >
+                          <Calendar className="mr-2 h-4 w-4" />
+                          {customToDate ? format(customToDate, "PPP") : <span>Pick a date</span>}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <CalendarComponent
+                          mode="single"
+                          selected={customToDate}
+                          onSelect={setCustomToDate}
+                          initialFocus
+                          className="pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                 </div>
               </div>
             )}
