@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { Plus, Clock, TrendingUp, X, Settings, Play, BarChart3 } from 'lucide-react';
+import { Plus, Clock, TrendingUp, X, Settings, Play } from 'lucide-react';
 import { Workout } from './WorkoutApp';
 import { DeleteConfirmDialog } from './DeleteConfirmDialog';
 import { SettingsPanel } from './SettingsPanel';
-import { StatsPanel } from './StatsPanel';
 import { useSettings } from '@/contexts/SettingsContext';
 interface MainDashboardProps {
   workoutHistory: Workout[];
@@ -34,7 +33,6 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({
     isOpen: false
   });
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isStatsOpen, setIsStatsOpen] = useState(false);
   const formatDuration = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor(seconds % 3600 / 60);
@@ -98,28 +96,22 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({
       </button>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-2 gap-3 mb-4">
-        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
+      <div className="grid grid-cols-2 gap-4 mb-8">
+        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
           <div className="flex items-center space-x-2 mb-1">
-            <TrendingUp className="w-4 h-4 text-green-500" />
-            <span className="text-green-300 text-xs">Total Workouts</span>
+            <TrendingUp className="w-5 h-5 text-green-500" />
+            <span className="text-green-300 text-sm">Total Workouts</span>
           </div>
-          <span className="text-xl font-bold">{workoutHistory.length}</span>
+          <span className="text-2xl font-bold">{workoutHistory.length}</span>
         </div>
-        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
+        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
           <div className="flex items-center space-x-2 mb-1">
-            <Clock className="w-4 h-4 text-blue-400" />
-            <span className="text-blue-200 text-xs">This Week</span>
+            <Clock className="w-5 h-5 text-blue-400" />
+            <span className="text-blue-200 text-sm">This Week</span>
           </div>
-          <span className="text-xl font-bold">{workoutHistory.slice(0, 7).length}</span>
+          <span className="text-2xl font-bold">{workoutHistory.slice(0, 7).length}</span>
         </div>
       </div>
-
-      {/* Your Stats Button */}
-      <button onClick={() => setIsStatsOpen(true)} className="w-full bg-white/10 backdrop-blur-sm rounded-xl p-3 mb-8 border border-white/20 hover:bg-white/15 transition-all duration-200 flex items-center justify-center space-x-2">
-        <BarChart3 className="w-5 h-5 text-slate-400" />
-        <span className="text-slate-300 font-bold">Your Stats</span>
-      </button>
 
       {/* Active Workouts */}
       {activeWorkouts.length > 0 && <div className="mb-6">
@@ -224,8 +216,5 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({
 
       {/* Settings Panel */}
       <SettingsPanel isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
-
-      {/* Stats Panel */}
-      <StatsPanel isOpen={isStatsOpen} onClose={() => setIsStatsOpen(false)} workoutHistory={workoutHistory} />
     </div>;
 };
