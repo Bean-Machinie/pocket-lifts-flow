@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, Clock } from 'lucide-react';
+import { Calendar, Clock, ChevronDown } from 'lucide-react';
 import { Workout } from '../WorkoutApp';
 import { Button } from '../ui/button';
 import { Calendar as CalendarComponent } from '../ui/calendar';
@@ -16,16 +16,7 @@ export const WorkoutTimesCard: React.FC<WorkoutTimesCardProps> = ({
   workout,
   onUpdateWorkout
 }) => {
-  const [startTimeHour, setStartTimeHour] = useState(workout.startTime.getHours());
-  const [startTimeMinute, setStartTimeMinute] = useState(workout.startTime.getMinutes());
-  const [endTimeHour, setEndTimeHour] = useState(() => {
-    const endTime = new Date(workout.startTime.getTime() + workout.duration * 1000);
-    return endTime.getHours();
-  });
-  const [endTimeMinute, setEndTimeMinute] = useState(() => {
-    const endTime = new Date(workout.startTime.getTime() + workout.duration * 1000);
-    return endTime.getMinutes();
-  });
+  const [showTimeEdit, setShowTimeEdit] = useState(false);
 
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString('en-US', {
@@ -45,8 +36,7 @@ export const WorkoutTimesCard: React.FC<WorkoutTimesCardProps> = ({
   };
 
   const getEndTime = () => {
-    const endTime = new Date(workout.startTime.getTime() + workout.duration * 1000);
-    return endTime;
+    return new Date(workout.startTime.getTime() + workout.duration * 1000);
   };
 
   const updateStartTime = (hour: number, minute: number) => {
@@ -100,57 +90,48 @@ export const WorkoutTimesCard: React.FC<WorkoutTimesCardProps> = ({
     onUpdateWorkout(updatedWorkout);
   };
 
-  const handleStartTimeHourChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const hour = parseInt(e.target.value);
-    setStartTimeHour(hour);
-    updateStartTime(hour, startTimeMinute);
-  };
-
-  const handleStartTimeMinuteChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const minute = parseInt(e.target.value);
-    setStartTimeMinute(minute);
-    updateStartTime(startTimeHour, minute);
-  };
-
-  const handleEndTimeHourChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const hour = parseInt(e.target.value);
-    setEndTimeHour(hour);
-    updateEndTime(hour, endTimeMinute);
-  };
-
-  const handleEndTimeMinuteChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const minute = parseInt(e.target.value);
-    setEndTimeMinute(minute);
-    updateEndTime(endTimeHour, minute);
-  };
-
   // Generate arrays for the time pickers
   const hours = Array.from({ length: 24 }, (_, i) => i);
-  const minutes = Array.from({ length: 60 }, (_, i) => i);
+  const minutes = Array.from({ length: 12 }, (_, i) => i * 5); // 5-minute intervals
+
+  const endTime = getEndTime();
 
   return (
     <div className="px-6 pb-4">
       <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/20 space-y-4">
         {/* Header */}
-        <div className="flex items-center space-x-2 mb-3">
-          <Calendar className="w-5 h-5 text-blue-400" />
-          <h3 className="text-lg font-semibold text-white">Workout Schedule</h3>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Calendar className="w-5 h-5 text-blue-400" />
+            <h3 className="text-lg font-semibold text-white">Schedule</h3>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowTimeEdit(!showTimeEdit)}
+            className="text-blue-400 hover:text-blue-300 p-2"
+          >
+            <Clock className="w-4 h-4 mr-1" />
+            Edit Times
+            <ChevronDown className={cn("w-4 h-4 ml-1 transition-transform", showTimeEdit && "rotate-180")} />
+          </Button>
         </div>
 
-        {/* Date */}
-        <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+        {/* Date Display */}
+        <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/10">
           <div className="flex-1">
             <span className="text-sm text-gray-400">Date</span>
-            <div className="text-white font-medium">{formatDate(workout.startTime)}</div>
+            <div className="text-white font-medium text-lg">{formatDate(workout.startTime)}</div>
           </div>
           <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
-                className="bg-gray-800 border-gray-600 text-white hover:bg-gray-700 text-sm px-3 py-1"
+                size="sm"
+                className="bg-gray-800/50 border-gray-600 text-white hover:bg-gray-700/50 text-sm"
               >
                 <Calendar className="w-4 h-4 mr-1" />
-                Edit
+                Change
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="end">
@@ -165,65 +146,101 @@ export const WorkoutTimesCard: React.FC<WorkoutTimesCardProps> = ({
           </Popover>
         </div>
 
-        {/* Start Time */}
-        <div className="p-3 bg-white/5 rounded-lg">
-          <span className="text-sm text-gray-400 block mb-2">Start Time</span>
-          <div className="flex items-center space-x-2">
-            <select
-              value={startTimeHour}
-              onChange={handleStartTimeHourChange}
-              className="bg-gray-800 text-white rounded px-2 py-1 text-sm border border-gray-600 focus:border-blue-500 focus:outline-none"
-            >
-              {hours.map((hour) => (
-                <option key={hour} value={hour}>
-                  {hour.toString().padStart(2, '0')}
-                </option>
-              ))}
-            </select>
-            <span className="text-white">:</span>
-            <select
-              value={startTimeMinute}
-              onChange={handleStartTimeMinuteChange}
-              className="bg-gray-800 text-white rounded px-2 py-1 text-sm border border-gray-600 focus:border-blue-500 focus:outline-none"
-            >
-              {minutes.map((minute) => (
-                <option key={minute} value={minute}>
-                  {minute.toString().padStart(2, '0')}
-                </option>
-              ))}
-            </select>
+        {/* Time Range Display */}
+        <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-gray-400">Time Range</span>
+            <span className="text-xs text-gray-500">
+              {Math.floor(workout.duration / 60)} min
+            </span>
+          </div>
+          <div className="flex items-center space-x-3">
+            <div className="flex-1 text-center">
+              <div className="text-2xl font-bold text-white">{formatTime(workout.startTime)}</div>
+              <div className="text-xs text-gray-400">Start</div>
+            </div>
+            <div className="text-gray-400">→</div>
+            <div className="flex-1 text-center">
+              <div className="text-2xl font-bold text-white">{formatTime(endTime)}</div>
+              <div className="text-xs text-gray-400">End</div>
+            </div>
           </div>
         </div>
 
-        {/* End Time */}
-        <div className="p-3 bg-white/5 rounded-lg">
-          <span className="text-sm text-gray-400 block mb-2">End Time</span>
-          <div className="flex items-center space-x-2">
-            <select
-              value={endTimeHour}
-              onChange={handleEndTimeHourChange}
-              className="bg-gray-800 text-white rounded px-2 py-1 text-sm border border-gray-600 focus:border-blue-500 focus:outline-none"
-            >
-              {hours.map((hour) => (
-                <option key={hour} value={hour}>
-                  {hour.toString().padStart(2, '0')}
-                </option>
-              ))}
-            </select>
-            <span className="text-white">:</span>
-            <select
-              value={endTimeMinute}
-              onChange={handleEndTimeMinuteChange}
-              className="bg-gray-800 text-white rounded px-2 py-1 text-sm border border-gray-600 focus:border-blue-500 focus:outline-none"
-            >
-              {minutes.map((minute) => (
-                <option key={minute} value={minute}>
-                  {minute.toString().padStart(2, '0')}
-                </option>
-              ))}
-            </select>
+        {/* Time Edit Panel */}
+        {showTimeEdit && (
+          <div className="space-y-4 p-4 bg-white/5 rounded-xl border border-white/10">
+            {/* Start Time */}
+            <div>
+              <label className="text-sm text-gray-400 block mb-3">Start Time</label>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <span className="text-xs text-gray-500 block mb-1">Hour</span>
+                  <select
+                    value={workout.startTime.getHours()}
+                    onChange={(e) => updateStartTime(parseInt(e.target.value), workout.startTime.getMinutes())}
+                    className="w-full bg-gray-800/80 text-white rounded-lg px-3 py-3 text-center border border-gray-600 focus:border-blue-500 focus:outline-none text-lg font-medium"
+                  >
+                    {hours.map((hour) => (
+                      <option key={hour} value={hour}>
+                        {hour.toString().padStart(2, '0')}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <span className="text-xs text-gray-500 block mb-1">Minutes</span>
+                  <select
+                    value={workout.startTime.getMinutes()}
+                    onChange={(e) => updateStartTime(workout.startTime.getHours(), parseInt(e.target.value))}
+                    className="w-full bg-gray-800/80 text-white rounded-lg px-3 py-3 text-center border border-gray-600 focus:border-blue-500 focus:outline-none text-lg font-medium"
+                  >
+                    {minutes.map((minute) => (
+                      <option key={minute} value={minute}>
+                        {minute.toString().padStart(2, '0')}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* End Time */}
+            <div>
+              <label className="text-sm text-gray-400 block mb-3">End Time</label>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <span className="text-xs text-gray-500 block mb-1">Hour</span>
+                  <select
+                    value={endTime.getHours()}
+                    onChange={(e) => updateEndTime(parseInt(e.target.value), endTime.getMinutes())}
+                    className="w-full bg-gray-800/80 text-white rounded-lg px-3 py-3 text-center border border-gray-600 focus:border-blue-500 focus:outline-none text-lg font-medium"
+                  >
+                    {hours.map((hour) => (
+                      <option key={hour} value={hour}>
+                        {hour.toString().padStart(2, '0')}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <span className="text-xs text-gray-500 block mb-1">Minutes</span>
+                  <select
+                    value={endTime.getMinutes()}
+                    onChange={(e) => updateEndTime(endTime.getHours(), parseInt(e.target.value))}
+                    className="w-full bg-gray-800/80 text-white rounded-lg px-3 py-3 text-center border border-gray-600 focus:border-blue-500 focus:outline-none text-lg font-medium"
+                  >
+                    {minutes.map((minute) => (
+                      <option key={minute} value={minute}>
+                        {minute.toString().padStart(2, '0')}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
