@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { MainDashboard } from './MainDashboard';
 import { ActiveWorkout } from './ActiveWorkout';
 import { ExerciseSelector } from './ExerciseSelector';
 import { WorkoutViewer } from './WorkoutViewer';
+import { StatsPanel } from './StatsPanel';
 import { SettingsProvider } from '@/contexts/SettingsContext';
 
 export interface Exercise {
@@ -31,7 +31,7 @@ export interface Workout {
   isActive?: boolean;
 }
 
-export type AppScreen = 'dashboard' | 'workout' | 'exercise-selector' | 'workout-viewer';
+export type AppScreen = 'dashboard' | 'workout' | 'exercise-selector' | 'workout-viewer' | 'stats';
 
 export const WorkoutApp: React.FC = () => {
   const [currentScreen, setCurrentScreen] = useState<AppScreen>('dashboard');
@@ -139,6 +139,10 @@ export const WorkoutApp: React.FC = () => {
     }
   };
 
+  const openStats = () => {
+    setCurrentScreen('stats');
+  };
+
   const renderScreen = () => {
     switch (currentScreen) {
       case 'dashboard':
@@ -151,6 +155,13 @@ export const WorkoutApp: React.FC = () => {
             onViewWorkout={viewWorkout}
             onDeleteWorkout={deleteWorkout}
             onDeleteActiveWorkout={deleteActiveWorkout}
+            onOpenStats={openStats}
+          />
+        );
+      case 'stats':
+        return (
+          <StatsPanel
+            onBack={() => setCurrentScreen('dashboard')}
           />
         );
       case 'workout':

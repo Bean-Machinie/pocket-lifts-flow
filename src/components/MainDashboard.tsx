@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Plus, Clock, TrendingUp, X, Settings, Play } from 'lucide-react';
+import { Plus, Clock, TrendingUp, X, Settings, Play, BarChart3 } from 'lucide-react';
 import { Workout } from './WorkoutApp';
 import { DeleteConfirmDialog } from './DeleteConfirmDialog';
 import { SettingsPanel } from './SettingsPanel';
 import { useSettings } from '@/contexts/SettingsContext';
+
 interface MainDashboardProps {
   workoutHistory: Workout[];
   activeWorkouts: Workout[];
@@ -12,7 +13,9 @@ interface MainDashboardProps {
   onViewWorkout: (workout: Workout) => void;
   onDeleteWorkout: (workoutId: string) => void;
   onDeleteActiveWorkout: (workoutId: string) => void;
+  onOpenStats: () => void;
 }
+
 export const MainDashboard: React.FC<MainDashboardProps> = ({
   workoutHistory,
   activeWorkouts,
@@ -20,7 +23,8 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({
   onResumeWorkout,
   onViewWorkout,
   onDeleteWorkout,
-  onDeleteActiveWorkout
+  onDeleteActiveWorkout,
+  onOpenStats
 }) => {
   const {
     settings
@@ -88,30 +92,38 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({
       </div>
 
       {/* Start Workout Button */}
-      <button onClick={onStartWorkout} className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 rounded-3xl p-6 mb-8 shadow-lg transform transition-all duration-200 hover:scale-105 active:scale-95">
+      <button onClick={onStartWorkout} className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 rounded-3xl p-6 mb-6 shadow-lg transform transition-all duration-200 hover:scale-105 active:scale-95">
         <div className="flex items-center justify-center space-x-3">
           <Plus className="w-8 h-8" />
           <span className="text-2xl font-semibold">Start New Workout</span>
         </div>
       </button>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-2 gap-4 mb-8">
-        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
+      {/* Quick Stats - Made smaller */}
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
           <div className="flex items-center space-x-2 mb-1">
-            <TrendingUp className="w-5 h-5 text-green-500" />
-            <span className="text-green-300 text-sm">Total Workouts</span>
+            <TrendingUp className="w-4 h-4 text-green-500" />
+            <span className="text-green-300 text-xs">Total Workouts</span>
           </div>
-          <span className="text-2xl font-bold">{workoutHistory.length}</span>
+          <span className="text-xl font-bold">{workoutHistory.length}</span>
         </div>
-        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
+        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
           <div className="flex items-center space-x-2 mb-1">
-            <Clock className="w-5 h-5 text-blue-400" />
-            <span className="text-blue-200 text-sm">This Week</span>
+            <Clock className="w-4 h-4 text-blue-400" />
+            <span className="text-blue-200 text-xs">This Week</span>
           </div>
-          <span className="text-2xl font-bold">{workoutHistory.slice(0, 7).length}</span>
+          <span className="text-xl font-bold">{workoutHistory.slice(0, 7).length}</span>
         </div>
       </div>
+
+      {/* Your Stats Button */}
+      <button onClick={onOpenStats} className="w-full bg-white/10 backdrop-blur-sm rounded-xl p-4 mb-8 border border-white/20 transform transition-all duration-200 hover:bg-white/15 hover:scale-[1.02]">
+        <div className="flex items-center justify-center space-x-3">
+          <BarChart3 className="w-5 h-5 text-purple-400" />
+          <span className="text-lg font-medium text-slate-200">Your Stats</span>
+        </div>
+      </button>
 
       {/* Active Workouts */}
       {activeWorkouts.length > 0 && <div className="mb-6">
