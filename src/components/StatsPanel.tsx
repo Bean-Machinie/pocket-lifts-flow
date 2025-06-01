@@ -23,7 +23,7 @@ export const StatsPanel: React.FC<StatsPanelProps> = ({
       {/* Empty content area - ready for future additions */}
       <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 text-center border border-white/20">
         <p className="text-slate-200 mb-2">Stats coming soon!</p>
-        <p className="text-purple-300 text-sm">This panel will show your workout statistics and progress.</p>
+        <p className="text-blue-300 text-sm">This panel will show your workout statistics and progress.</p>
       </div>
     </div>;
 };
