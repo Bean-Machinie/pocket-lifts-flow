@@ -62,6 +62,11 @@ export const WorkoutApp: React.FC = () => {
   // Create a memoized version to ensure it updates when workoutHistory changes
   const standardizedWorkoutHistory: WorkoutType[] = React.useMemo(() => {
     console.log('Converting workout history to standard format:', workoutHistory.length);
+    console.log('Workout history details:', workoutHistory.map(w => ({
+      id: w.id,
+      startTime: w.startTime.toISOString(),
+      exerciseCount: w.exercises.length
+    })));
     return workoutHistory.map(convertToStandardWorkout);
   }, [workoutHistory]);
 
@@ -106,13 +111,25 @@ export const WorkoutApp: React.FC = () => {
   };
 
   const updateViewingWorkout = (updatedWorkout: Workout) => {
-    console.log('updateViewingWorkout called with:', updatedWorkout);
+    console.log('=== updateViewingWorkout called ===');
+    console.log('Updated workout:', {
+      id: updatedWorkout.id,
+      startTime: updatedWorkout.startTime.toISOString(),
+      exercises: updatedWorkout.exercises.map(ex => ex.name)
+    });
+    
     setViewingWorkout(updatedWorkout);
     
-    // Update the workout in history - this was missing!
+    // Update the workout in history - this is crucial for stats to work
     setWorkoutHistory(prev => {
-      const updated = prev.map(w => w.id === updatedWorkout.id ? updatedWorkout : w);
-      console.log('Updated workout history:', updated);
+      const updated = prev.map(w => {
+        if (w.id === updatedWorkout.id) {
+          console.log(`Updating workout ${w.id} in history`);
+          return updatedWorkout;
+        }
+        return w;
+      });
+      console.log('Updated workout history length:', updated.length);
       return updated;
     });
     
@@ -120,6 +137,8 @@ export const WorkoutApp: React.FC = () => {
     setActiveWorkouts(prev => 
       prev.map(w => w.id === updatedWorkout.id ? updatedWorkout : w)
     );
+    
+    console.log('=== updateViewingWorkout complete ===');
   };
 
   const addExercise = (exerciseName: string, muscleGroup: string) => {
