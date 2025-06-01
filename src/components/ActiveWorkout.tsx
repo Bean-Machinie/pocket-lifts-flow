@@ -3,7 +3,6 @@ import { Plus, Clock, ArrowLeft, Hash, X } from 'lucide-react';
 import { Workout, Exercise } from './WorkoutApp';
 import { DeleteConfirmDialog } from './DeleteConfirmDialog';
 import { DateTimePicker } from './DateTimePicker';
-import { DurationResetDialog } from './DurationResetDialog';
 import { useSettings } from '@/contexts/SettingsContext';
 
 interface ActiveWorkoutProps {
@@ -21,9 +20,10 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
   onAddExercise,
   onBack
 }) => {
-  const { settings } = useSettings();
+  const {
+    settings
+  } = useSettings();
   const [duration, setDuration] = useState(0);
-  const [durationStartTime, setDurationStartTime] = useState<Date | null>(null);
   const [deleteDialog, setDeleteDialog] = useState<{
     isOpen: boolean;
     type: 'set' | 'exercise';
@@ -34,8 +34,6 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
     type: 'set'
   });
   const [dateTimePickerOpen, setDateTimePickerOpen] = useState(false);
-  const [durationResetDialog, setDurationResetDialog] = useState(false);
-  const [pendingStartTime, setPendingStartTime] = useState<Date | null>(null);
   const [lastAddedSetId, setLastAddedSetId] = useState<string | null>(null);
   const [lastAddedExerciseId, setLastAddedExerciseId] = useState<string | null>(null);
   const weightInputRefs = useRef<{
@@ -48,30 +46,16 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
     [key: string]: HTMLDivElement | null;
   }>({});
 
-  // Initialize duration tracking when workout starts
+  // Calculate duration based on start time, not from workout.duration
   useEffect(() => {
     if (!workout) return;
-    
-    // If this is a new workout or we don't have a duration start time, set it
-    if (!durationStartTime) {
-      setDurationStartTime(new Date());
-      setDuration(workout.duration || 0);
-    }
-  }, [workout?.id]);
-
-  // Update duration every second
-  useEffect(() => {
-    if (!workout || !durationStartTime) return;
-    
     const interval = setInterval(() => {
       const now = new Date();
-      const elapsed = Math.floor((now.getTime() - durationStartTime.getTime()) / 1000);
-      const totalDuration = (workout.duration || 0) + elapsed;
-      setDuration(totalDuration);
+      const elapsed = Math.floor((now.getTime() - workout.startTime.getTime()) / 1000);
+      setDuration(elapsed);
     }, 1000);
-    
     return () => clearInterval(interval);
-  }, [durationStartTime, workout?.duration]);
+  }, [workout?.startTime]); // Only depend on startTime, not the entire workout
 
   useEffect(() => {
     if (lastAddedSetId && weightInputRefs.current[lastAddedSetId]) {
@@ -117,7 +101,6 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
       }
     }
   }, [workout?.exercises?.length]);
-
   const formatDuration = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor(seconds % 3600 / 60);
@@ -150,56 +133,14 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
     }
     return `${weight.toFixed(0)}${settings.weightUnit}`;
   };
-
   const updateStartTime = (newDate: Date) => {
     if (!workout) return;
-    
-    // Check if changing start time would affect duration significantly
-    const timeDifference = Math.abs(newDate.getTime() - workout.startTime.getTime());
-    const shouldShowWarning = timeDifference > 60000 && duration > 60; // More than 1 minute difference and duration > 1 minute
-    
-    if (shouldShowWarning) {
-      setPendingStartTime(newDate);
-      setDurationResetDialog(true);
-      return;
-    }
-    
-    // Apply the change directly if it's a small adjustment
-    applyStartTimeChange(newDate);
-  };
-
-  const applyStartTimeChange = (newDate: Date) => {
-    if (!workout) return;
-    
     const updatedWorkout = {
       ...workout,
       startTime: newDate
     };
     onUpdateWorkout(updatedWorkout);
-    setDateTimePickerOpen(false);
   };
-
-  const handleDurationReset = () => {
-    if (!workout || !pendingStartTime) return;
-    
-    // Reset duration tracking
-    setDurationStartTime(new Date());
-    setDuration(0);
-    
-    // Update workout with new start time and reset duration
-    const updatedWorkout = {
-      ...workout,
-      startTime: pendingStartTime,
-      duration: 0
-    };
-    onUpdateWorkout(updatedWorkout);
-    
-    // Close dialogs
-    setDurationResetDialog(false);
-    setDateTimePickerOpen(false);
-    setPendingStartTime(null);
-  };
-
   const handleEndWorkout = () => {
     if (!workout) return;
 
@@ -211,7 +152,6 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
     onUpdateWorkout(finalWorkout);
     onEndWorkout();
   };
-
   const addSet = (exerciseId: string) => {
     if (!workout) return;
     const newSetId = Date.now().toString();
@@ -292,11 +232,8 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
       setId
     });
   };
-
   if (!workout) return null;
-
-  return (
-    <div className="min-h-screen text-white flex flex-col animate-slide-in-right">
+  return <div className="min-h-screen text-white flex flex-col animate-slide-in-right">
       {/* Sticky Header */}
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-800 via-slate-800 to-slate-800/95 backdrop-blur-sm border-b border-white/10">
         <div className="flex justify-between items-center p-6 bg-purple-600 dark:bg-slate-800">
@@ -354,18 +291,11 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
           </div>
         </div>
 
+        {/* Exercises */}
         <div className="space-y-3">
-          {workout.exercises.map(exercise => (
-            <div
-              key={exercise.id}
-              ref={el => exerciseRefs.current[exercise.id] = el}
-              className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20 animate-scale-in relative"
-            >
+          {workout.exercises.map(exercise => <div key={exercise.id} ref={el => exerciseRefs.current[exercise.id] = el} className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20 animate-scale-in relative">
               {/* Exercise delete button */}
-              <button
-                onClick={() => openDeleteDialog('exercise', exercise.id)}
-                className="absolute top-2 right-2 text-red-400 hover:text-red-300 p-1"
-              >
+              <button onClick={() => openDeleteDialog('exercise', exercise.id)} className="absolute top-2 right-2 text-red-400 hover:text-red-300 p-1">
                 <X className="w-4 h-4" />
               </button>
 
@@ -376,17 +306,9 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
 
               {/* Sets */}
               <div className="space-y-2 mb-3">
-                {exercise.sets.map((set, index) => (
-                  <div
-                    key={set.id}
-                    ref={el => setRefs.current[set.id] = el}
-                    className="bg-white/10 rounded-lg p-3 relative"
-                  >
+                {exercise.sets.map((set, index) => <div key={set.id} ref={el => setRefs.current[set.id] = el} className="bg-white/10 rounded-lg p-3 relative">
                     {/* Set delete button */}
-                    <button
-                      onClick={() => openDeleteDialog('set', exercise.id, set.id)}
-                      className="absolute top-2 right-2 text-red-400 hover:text-red-300 p-1"
-                    >
+                    <button onClick={() => openDeleteDialog('set', exercise.id, set.id)} className="absolute top-2 right-2 text-red-400 hover:text-red-300 p-1">
                       <X className="w-3 h-3" />
                     </button>
 
@@ -398,76 +320,45 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
                     {/* Weight, Reps, and Notes on same row */}
                     <div className="flex items-center space-x-3 pr-8">
                       <div className="flex items-center space-x-1">
-                        <input
-                          ref={el => weightInputRefs.current[set.id] = el}
-                          type="number"
-                          placeholder="0"
-                          value={set.weight || ''}
-                          onChange={e => updateSet(exercise.id, set.id, 'weight', parseFloat(e.target.value) || 0)}
-                          className="w-12 bg-transparent text-white text-center text-lg font-bold border-0 border-b border-white/30 focus:border-blue-400 focus:outline-none pb-1"
-                        />
+                        <input ref={el => weightInputRefs.current[set.id] = el} type="number" placeholder="0" value={set.weight || ''} onChange={e => updateSet(exercise.id, set.id, 'weight', parseFloat(e.target.value) || 0)} className="w-12 bg-transparent text-white text-center text-lg font-bold border-0 border-b border-white/30 focus:border-blue-400 focus:outline-none pb-1" />
                         <span className="text-xs text-gray-300">{settings.weightUnit}</span>
                       </div>
                       
                       <span className="text-gray-400">×</span>
                       
                       <div className="flex items-center space-x-1">
-                        <input
-                          type="number"
-                          placeholder="0"
-                          value={set.reps || ''}
-                          onChange={e => updateSet(exercise.id, set.id, 'reps', parseInt(e.target.value) || 0)}
-                          className="w-12 bg-transparent text-white text-center text-lg font-bold border-0 border-b border-white/30 focus:border-blue-400 focus:outline-none pb-1"
-                        />
+                        <input type="number" placeholder="0" value={set.reps || ''} onChange={e => updateSet(exercise.id, set.id, 'reps', parseInt(e.target.value) || 0)} className="w-12 bg-transparent text-white text-center text-lg font-bold border-0 border-b border-white/30 focus:border-blue-400 focus:outline-none pb-1" />
                         <span className="text-xs text-gray-300">reps</span>
                       </div>
                       
                       <div className="flex-1">
-                        <input
-                          type="text"
-                          placeholder="notes..."
-                          value={set.notes || ''}
-                          onChange={e => updateSet(exercise.id, set.id, 'notes', e.target.value)}
-                          className="w-full bg-transparent text-white text-sm border-0 border-b border-white/30 focus:border-blue-400 focus:outline-none pb-1 placeholder:text-gray-400"
-                        />
+                        <input type="text" placeholder="notes..." value={set.notes || ''} onChange={e => updateSet(exercise.id, set.id, 'notes', e.target.value)} className="w-full bg-transparent text-white text-sm border-0 border-b border-white/30 focus:border-blue-400 focus:outline-none pb-1 placeholder:text-gray-400" />
                       </div>
                     </div>
-                  </div>
-                ))}
+                  </div>)}
                 
-                {exercise.sets.length === 0 && (
-                  <p className="text-purple-300 text-sm text-center py-3">
+                {exercise.sets.length === 0 && <p className="text-purple-300 text-sm text-center py-3">
                     No sets yet. Add your first set!
-                  </p>
-                )}
+                  </p>}
               </div>
 
               {/* Add Set Button */}
-              <button
-                onClick={() => addSet(exercise.id)}
-                className="w-full flex items-center justify-center space-x-2 p-2.5 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg transition-all duration-200 hover:scale-105 active:scale-95"
-              >
+              <button onClick={() => addSet(exercise.id)} className="w-full flex items-center justify-center space-x-2 p-2.5 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg transition-all duration-200 hover:scale-105 active:scale-95">
                 <Plus className="w-4 h-4" />
                 <span className="font-medium text-sm">Add Set</span>
               </button>
-            </div>
-          ))}
+            </div>)}
         </div>
 
-        {workout.exercises.length === 0 && (
-          <div className="text-center py-12">
+        {workout.exercises.length === 0 && <div className="text-center py-12">
             <p className="text-slate-200 mb-2">No exercises added yet</p>
             <p className="text-blue-300 text-sm">Tap "Add Exercise" to get started!</p>
-          </div>
-        )}
+          </div>}
       </div>
 
       {/* Fixed Add Exercise Button */}
       <div className="fixed bottom-0 left-0 right-0 p-3 bg-purple-600 dark:bg-slate-800 border-t border-white/10">
-        <button
-          onClick={onAddExercise}
-          className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl p-3 shadow-lg transform transition-all duration-200 hover:scale-105 active:scale-95"
-        >
+        <button onClick={onAddExercise} className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl p-3 shadow-lg transform transition-all duration-200 hover:scale-105 active:scale-95">
           <div className="flex items-center justify-center space-x-2">
             <Plus className="w-5 h-5" />
             <span className="font-semibold">Add Exercise</span>
@@ -481,17 +372,6 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
         onClose={() => setDateTimePickerOpen(false)}
         onSave={updateStartTime}
         initialDate={workout.startTime}
-      />
-
-      {/* Duration Reset Dialog */}
-      <DurationResetDialog
-        isOpen={durationResetDialog}
-        onClose={() => {
-          setDurationResetDialog(false);
-          setPendingStartTime(null);
-        }}
-        onConfirm={handleDurationReset}
-        currentDuration={formatDuration(duration)}
       />
 
       {/* Delete Confirmation Dialog */}
@@ -509,6 +389,5 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
         message={deleteDialog.type === 'set' ? 'Are you sure you want to delete this set? This action cannot be undone.' : 'Are you sure you want to delete this exercise? This will remove all sets and cannot be undone.'}
         confirmText={deleteDialog.type === 'set' ? 'Delete Set' : 'Delete Exercise'}
       />
-    </div>
-  );
+    </div>;
 };
