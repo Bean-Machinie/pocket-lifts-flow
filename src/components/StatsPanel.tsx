@@ -13,10 +13,10 @@ export const StatsPanel: React.FC<StatsPanelProps> = ({
           <ArrowLeft className="w-8 h-8 text-slate-200" />
         </button>
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-200 to-purple-300 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold text-slate-200">
             Your Stats
           </h1>
-          <p className="text-purple-300 text-lg">Track your progress</p>
+          <p className="text-blue-300 text-lg">Track your progress</p>
         </div>
       </div>
 
