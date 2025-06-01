@@ -239,8 +239,8 @@ export const ActiveWorkout: React.FC<ActiveWorkoutProps> = ({
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-800 via-slate-800 to-slate-800/95 backdrop-blur-sm border-b border-white/10">
         <div className="flex justify-between items-center p-6 bg-purple-600 dark:bg-slate-800">
           <div className="flex items-center space-x-3">
-            <button onClick={onBack} className="p-2 hover:bg-white/10 rounded-lg transition-colors mr-4">
-              <ArrowLeft className="w-5 h-5" />
+            <button onClick={onBack} className="p-2 hover:bg-white/10 rounded-lg transition-colors mr-1">
+              <ArrowLeft className="w-8 h-8 text-slate-200" />
             </button>
             <div>
               <h1 className="text-2xl font-bold text-slate-200">Active Workout</h1>
