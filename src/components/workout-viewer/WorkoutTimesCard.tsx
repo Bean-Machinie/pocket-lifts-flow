@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
-import { Edit3, Calendar, Clock, AlertTriangle } from 'lucide-react';
+import { Calendar, Clock } from 'lucide-react';
 import { Workout } from '../WorkoutApp';
-import { WorkoutDateTimePicker } from './WorkoutDateTimePicker';
-import { DeleteConfirmDialog } from '../DeleteConfirmDialog';
+import { Button } from '../ui/button';
+import { Calendar as CalendarComponent } from '../ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 interface WorkoutTimesCardProps {
   workout: Workout;
@@ -13,22 +16,15 @@ export const WorkoutTimesCard: React.FC<WorkoutTimesCardProps> = ({
   workout,
   onUpdateWorkout
 }) => {
-  const [dateTimePickerState, setDateTimePickerState] = useState<{
-    isOpen: boolean;
-    type: 'start' | 'end' | null;
-  }>({
-    isOpen: false,
-    type: null
+  const [startTimeHour, setStartTimeHour] = useState(workout.startTime.getHours());
+  const [startTimeMinute, setStartTimeMinute] = useState(workout.startTime.getMinutes());
+  const [endTimeHour, setEndTimeHour] = useState(() => {
+    const endTime = new Date(workout.startTime.getTime() + workout.duration * 1000);
+    return endTime.getHours();
   });
-
-  const [confirmDialog, setConfirmDialog] = useState<{
-    isOpen: boolean;
-    type: 'duration-reset' | null;
-    pendingDate?: Date;
-    pendingType?: 'start' | 'end';
-  }>({
-    isOpen: false,
-    type: null
+  const [endTimeMinute, setEndTimeMinute] = useState(() => {
+    const endTime = new Date(workout.startTime.getTime() + workout.duration * 1000);
+    return endTime.getMinutes();
   });
 
   const formatTime = (date: Date) => {
@@ -48,187 +44,187 @@ export const WorkoutTimesCard: React.FC<WorkoutTimesCardProps> = ({
     });
   };
 
-  const formatDuration = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor(seconds % 3600 / 60);
-    const secs = seconds % 60;
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
-
   const getEndTime = () => {
     const endTime = new Date(workout.startTime.getTime() + workout.duration * 1000);
     return endTime;
   };
 
-  const openDateTimePicker = (type: 'start' | 'end') => {
-    setDateTimePickerState({
-      isOpen: true,
-      type
-    });
-  };
-
-  const closeDateTimePicker = () => {
-    setDateTimePickerState({
-      isOpen: false,
-      type: null
-    });
-  };
-
-  const checkForDurationReset = (newDate: Date, type: 'start' | 'end') => {
-    const timeDifference = Math.abs(
-      type === 'start' 
-        ? newDate.getTime() - workout.startTime.getTime()
-        : newDate.getTime() - getEndTime().getTime()
-    );
+  const updateStartTime = (hour: number, minute: number) => {
+    const newStartTime = new Date(workout.startTime);
+    newStartTime.setHours(hour);
+    newStartTime.setMinutes(minute);
     
-    // If the time change is more than 5 minutes, show confirmation
-    if (timeDifference > 5 * 60 * 1000) {
-      setConfirmDialog({
-        isOpen: true,
-        type: 'duration-reset',
-        pendingDate: newDate,
-        pendingType: type
-      });
-      return true;
-    }
-    return false;
-  };
-
-  const handleDateTimeUpdate = (newDate: Date, type: 'start' | 'end') => {
-    if (checkForDurationReset(newDate, type)) {
-      return; // Will be handled by confirmation dialog
-    }
+    // Keep end time fixed, adjust duration
+    const currentEndTime = getEndTime();
+    const newDuration = Math.floor((currentEndTime.getTime() - newStartTime.getTime()) / 1000);
     
-    applyDateTimeUpdate(newDate, type);
-    closeDateTimePicker();
-  };
-
-  const applyDateTimeUpdate = (newDate: Date, type: 'start' | 'end') => {
-    let updatedWorkout: Workout;
-
-    if (type === 'start') {
-      // Calculate new duration based on fixed end time
-      const currentEndTime = getEndTime();
-      const newDuration = Math.floor((currentEndTime.getTime() - newDate.getTime()) / 1000);
-      updatedWorkout = {
-        ...workout,
-        startTime: newDate,
-        duration: Math.max(0, newDuration)
-      };
-    } else {
-      // Calculate new duration based on fixed start time
-      const newDuration = Math.floor((newDate.getTime() - workout.startTime.getTime()) / 1000);
-      updatedWorkout = {
-        ...workout,
-        duration: Math.max(0, newDuration)
-      };
-    }
-
+    const updatedWorkout = {
+      ...workout,
+      startTime: newStartTime,
+      duration: Math.max(0, newDuration)
+    };
+    
     onUpdateWorkout(updatedWorkout);
   };
 
-  const handleConfirmDurationReset = () => {
-    if (confirmDialog.pendingDate && confirmDialog.pendingType) {
-      applyDateTimeUpdate(confirmDialog.pendingDate, confirmDialog.pendingType);
+  const updateEndTime = (hour: number, minute: number) => {
+    const newEndTime = new Date(workout.startTime);
+    newEndTime.setHours(hour);
+    newEndTime.setMinutes(minute);
+    
+    // If end time is before start time, assume it's the next day
+    if (newEndTime <= workout.startTime) {
+      newEndTime.setDate(newEndTime.getDate() + 1);
     }
-    setConfirmDialog({ isOpen: false, type: null });
-    closeDateTimePicker();
+    
+    const newDuration = Math.floor((newEndTime.getTime() - workout.startTime.getTime()) / 1000);
+    
+    const updatedWorkout = {
+      ...workout,
+      duration: Math.max(0, newDuration)
+    };
+    
+    onUpdateWorkout(updatedWorkout);
   };
 
+  const updateDate = (newDate: Date) => {
+    const updatedStartTime = new Date(newDate);
+    updatedStartTime.setHours(workout.startTime.getHours());
+    updatedStartTime.setMinutes(workout.startTime.getMinutes());
+    
+    const updatedWorkout = {
+      ...workout,
+      startTime: updatedStartTime
+    };
+    
+    onUpdateWorkout(updatedWorkout);
+  };
+
+  const handleStartTimeHourChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const hour = parseInt(e.target.value);
+    setStartTimeHour(hour);
+    updateStartTime(hour, startTimeMinute);
+  };
+
+  const handleStartTimeMinuteChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const minute = parseInt(e.target.value);
+    setStartTimeMinute(minute);
+    updateStartTime(startTimeHour, minute);
+  };
+
+  const handleEndTimeHourChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const hour = parseInt(e.target.value);
+    setEndTimeHour(hour);
+    updateEndTime(hour, endTimeMinute);
+  };
+
+  const handleEndTimeMinuteChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const minute = parseInt(e.target.value);
+    setEndTimeMinute(minute);
+    updateEndTime(endTimeHour, minute);
+  };
+
+  // Generate arrays for the time pickers
+  const hours = Array.from({ length: 24 }, (_, i) => i);
+  const minutes = Array.from({ length: 60 }, (_, i) => i);
+
   return (
-    <>
-      <div className="px-6 pb-4">
-        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/20 space-y-4">
-          {/* Header */}
-          <div className="flex items-center space-x-2 mb-3">
-            <Calendar className="w-5 h-5 text-blue-400" />
-            <h3 className="text-lg font-semibold text-white">Workout Schedule</h3>
-          </div>
+    <div className="px-6 pb-4">
+      <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/20 space-y-4">
+        {/* Header */}
+        <div className="flex items-center space-x-2 mb-3">
+          <Calendar className="w-5 h-5 text-blue-400" />
+          <h3 className="text-lg font-semibold text-white">Workout Schedule</h3>
+        </div>
 
-          {/* Date */}
-          <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
-            <div>
-              <span className="text-sm text-gray-400">Date</span>
-              <div className="text-white font-medium">{formatDate(workout.startTime)}</div>
-            </div>
-            <button 
-              onClick={() => openDateTimePicker('start')}
-              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+        {/* Date */}
+        <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+          <div className="flex-1">
+            <span className="text-sm text-gray-400">Date</span>
+            <div className="text-white font-medium">{formatDate(workout.startTime)}</div>
+          </div>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className="bg-gray-800 border-gray-600 text-white hover:bg-gray-700 text-sm px-3 py-1"
+              >
+                <Calendar className="w-4 h-4 mr-1" />
+                Edit
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="end">
+              <CalendarComponent
+                mode="single"
+                selected={workout.startTime}
+                onSelect={(date) => date && updateDate(date)}
+                initialFocus
+                className="pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+
+        {/* Start Time */}
+        <div className="p-3 bg-white/5 rounded-lg">
+          <span className="text-sm text-gray-400 block mb-2">Start Time</span>
+          <div className="flex items-center space-x-2">
+            <select
+              value={startTimeHour}
+              onChange={handleStartTimeHourChange}
+              className="bg-gray-800 text-white rounded px-2 py-1 text-sm border border-gray-600 focus:border-blue-500 focus:outline-none"
             >
-              <Edit3 className="w-4 h-4 text-blue-400" />
-            </button>
-          </div>
-
-          {/* Start Time */}
-          <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
-            <div>
-              <span className="text-sm text-gray-400">Start Time</span>
-              <div className="text-white font-medium">{formatTime(workout.startTime)}</div>
-            </div>
-            <button 
-              onClick={() => openDateTimePicker('start')}
-              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              {hours.map((hour) => (
+                <option key={hour} value={hour}>
+                  {hour.toString().padStart(2, '0')}
+                </option>
+              ))}
+            </select>
+            <span className="text-white">:</span>
+            <select
+              value={startTimeMinute}
+              onChange={handleStartTimeMinuteChange}
+              className="bg-gray-800 text-white rounded px-2 py-1 text-sm border border-gray-600 focus:border-blue-500 focus:outline-none"
             >
-              <Edit3 className="w-4 h-4 text-blue-400" />
-            </button>
+              {minutes.map((minute) => (
+                <option key={minute} value={minute}>
+                  {minute.toString().padStart(2, '0')}
+                </option>
+              ))}
+            </select>
           </div>
+        </div>
 
-          {/* End Time */}
-          <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
-            <div>
-              <span className="text-sm text-gray-400">End Time</span>
-              <div className="text-white font-medium">{formatTime(getEndTime())}</div>
-            </div>
-            <button 
-              onClick={() => openDateTimePicker('end')}
-              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+        {/* End Time */}
+        <div className="p-3 bg-white/5 rounded-lg">
+          <span className="text-sm text-gray-400 block mb-2">End Time</span>
+          <div className="flex items-center space-x-2">
+            <select
+              value={endTimeHour}
+              onChange={handleEndTimeHourChange}
+              className="bg-gray-800 text-white rounded px-2 py-1 text-sm border border-gray-600 focus:border-blue-500 focus:outline-none"
             >
-              <Edit3 className="w-4 h-4 text-blue-400" />
-            </button>
-          </div>
-
-          {/* Duration */}
-          <div className="p-3 bg-white/5 rounded-lg">
-            <div className="flex items-center space-x-2 mb-1">
-              <Clock className="w-4 h-4 text-green-400" />
-              <span className="text-sm text-gray-400">Total Duration</span>
-            </div>
-            <div className="text-white font-bold text-lg">{formatDuration(workout.duration)}</div>
+              {hours.map((hour) => (
+                <option key={hour} value={hour}>
+                  {hour.toString().padStart(2, '0')}
+                </option>
+              ))}
+            </select>
+            <span className="text-white">:</span>
+            <select
+              value={endTimeMinute}
+              onChange={handleEndTimeMinuteChange}
+              className="bg-gray-800 text-white rounded px-2 py-1 text-sm border border-gray-600 focus:border-blue-500 focus:outline-none"
+            >
+              {minutes.map((minute) => (
+                <option key={minute} value={minute}>
+                  {minute.toString().padStart(2, '0')}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
       </div>
-
-      {/* Date Time Picker */}
-      <WorkoutDateTimePicker
-        isOpen={dateTimePickerState.isOpen}
-        onClose={closeDateTimePicker}
-        onSave={(date) => handleDateTimeUpdate(date, dateTimePickerState.type!)}
-        initialDate={
-          dateTimePickerState.type === 'start' 
-            ? workout.startTime 
-            : getEndTime()
-        }
-        title={
-          dateTimePickerState.type === 'start' 
-            ? 'Edit Start Date & Time' 
-            : 'Edit End Date & Time'
-        }
-        description={
-          dateTimePickerState.type === 'start'
-            ? 'Changing the start time will adjust the workout duration'
-            : 'Changing the end time will adjust the workout duration'
-        }
-      />
-
-      {/* Duration Reset Confirmation */}
-      <DeleteConfirmDialog
-        isOpen={confirmDialog.isOpen}
-        onClose={() => setConfirmDialog({ isOpen: false, type: null })}
-        onConfirm={handleConfirmDurationReset}
-        title="Duration Will Be Recalculated"
-        message="You're making a significant time change. This will recalculate the workout duration based on the new start/end times. Do you want to continue?"
-        confirmText="Update Time"
-      />
-    </>
+    </div>
   );
 };
