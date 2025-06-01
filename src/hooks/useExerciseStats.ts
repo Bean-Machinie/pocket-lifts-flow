@@ -14,7 +14,7 @@ export function useExerciseStats(
   to: Date
 ): ExercisePoint[] {
   return useMemo(() => {
-    if (!exerciseName) return [];
+    if (!exerciseName || !workouts) return [];
 
     // Filter workouts within date range
     const filteredWorkouts = workouts.filter(workout => {
@@ -31,10 +31,12 @@ export function useExerciseStats(
       workout.exercises.forEach(exercise => {
         if (exercise.name.toLowerCase() === exerciseName.toLowerCase()) {
           exercise.sets.forEach(set => {
-            if (!dailyWeights[dateKey]) {
-              dailyWeights[dateKey] = [];
+            if (set.weight > 0) { // Only include sets with actual weight
+              if (!dailyWeights[dateKey]) {
+                dailyWeights[dateKey] = [];
+              }
+              dailyWeights[dateKey].push(set.weight);
             }
-            dailyWeights[dateKey].push(set.weight);
           });
         }
       });
@@ -44,7 +46,7 @@ export function useExerciseStats(
     const points: ExercisePoint[] = Object.entries(dailyWeights)
       .map(([date, weights]) => ({
         date,
-        avgWeight: weights.reduce((sum, weight) => sum + weight, 0) / weights.length
+        avgWeight: Math.round((weights.reduce((sum, weight) => sum + weight, 0) / weights.length) * 10) / 10
       }))
       .sort((a, b) => a.date.localeCompare(b.date));
 

@@ -5,7 +5,9 @@ import { ExerciseSelector } from './ExerciseSelector';
 import { WorkoutViewer } from './WorkoutViewer';
 import { StatsPanel } from './StatsPanel';
 import { SettingsProvider } from '@/contexts/SettingsContext';
+import { Workout as WorkoutType, Exercise as ExerciseType, Set as SetType } from '@/types/Workout';
 
+// Keep the local types for compatibility with existing components
 export interface Exercise {
   id: string;
   name: string;
@@ -39,6 +41,25 @@ export const WorkoutApp: React.FC = () => {
   const [viewingWorkout, setViewingWorkout] = useState<Workout | null>(null);
   const [workoutHistory, setWorkoutHistory] = useState<Workout[]>([]);
   const [activeWorkouts, setActiveWorkouts] = useState<Workout[]>([]);
+
+  // Convert local Workout format to standardized format for StatsPanel
+  const convertToStandardWorkout = (workout: Workout): WorkoutType => {
+    return {
+      id: workout.id,
+      startTime: workout.startTime,
+      duration: workout.duration,
+      totalSets: workout.totalSets,
+      exercises: workout.exercises.map(exercise => ({
+        name: exercise.name,
+        sets: exercise.sets.map(set => ({
+          weight: set.weight,
+          reps: set.reps
+        }))
+      }))
+    };
+  };
+
+  const standardizedWorkoutHistory: WorkoutType[] = workoutHistory.map(convertToStandardWorkout);
 
   const startNewWorkout = () => {
     const newWorkout: Workout = {
@@ -161,7 +182,7 @@ export const WorkoutApp: React.FC = () => {
       case 'stats':
         return (
           <StatsPanel
-            workouts={workoutHistory}
+            workouts={standardizedWorkoutHistory}
             onBack={() => setCurrentScreen('dashboard')}
           />
         );
