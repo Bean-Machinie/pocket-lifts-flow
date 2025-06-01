@@ -22,7 +22,8 @@ export function useExerciseStats(
     console.log('useExerciseStats - Processing:', {
       exerciseName,
       workoutCount: workouts.length,
-      dateRange: { from: from.toISOString(), to: to.toISOString() }
+      dateRange: { from: from.toISOString(), to: to.toISOString() },
+      allWorkouts: workouts.map(w => ({ id: w.id, startTime: w.startTime.toISOString() }))
     });
 
     // Filter workouts within date range
@@ -32,6 +33,8 @@ export function useExerciseStats(
       console.log('Workout date check:', {
         workoutId: workout.id,
         workoutDate: workoutDate.toISOString(),
+        fromDate: from.toISOString(),
+        toDate: to.toISOString(),
         isInRange
       });
       return isInRange;

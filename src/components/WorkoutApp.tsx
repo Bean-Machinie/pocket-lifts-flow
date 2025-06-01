@@ -102,9 +102,18 @@ export const WorkoutApp: React.FC = () => {
   };
 
   const updateViewingWorkout = (updatedWorkout: Workout) => {
+    console.log('updateViewingWorkout called with:', updatedWorkout);
     setViewingWorkout(updatedWorkout);
-    // Update the workout in history
-    setWorkoutHistory(prev => 
+    
+    // Update the workout in history - this was missing!
+    setWorkoutHistory(prev => {
+      const updated = prev.map(w => w.id === updatedWorkout.id ? updatedWorkout : w);
+      console.log('Updated workout history:', updated);
+      return updated;
+    });
+    
+    // Also update in active workouts if it exists there
+    setActiveWorkouts(prev => 
       prev.map(w => w.id === updatedWorkout.id ? updatedWorkout : w)
     );
   };
