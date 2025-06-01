@@ -4,7 +4,6 @@ import { Workout } from './WorkoutApp';
 import { DeleteConfirmDialog } from './DeleteConfirmDialog';
 import { SettingsPanel } from './SettingsPanel';
 import { useSettings } from '@/contexts/SettingsContext';
-
 interface MainDashboardProps {
   workoutHistory: Workout[];
   activeWorkouts: Workout[];
@@ -15,7 +14,6 @@ interface MainDashboardProps {
   onDeleteActiveWorkout: (workoutId: string) => void;
   onOpenStats: () => void;
 }
-
 export const MainDashboard: React.FC<MainDashboardProps> = ({
   workoutHistory,
   activeWorkouts,
@@ -120,7 +118,7 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({
       {/* Your Stats Button */}
       <button onClick={onOpenStats} className="w-full bg-white/10 backdrop-blur-sm rounded-xl p-4 mb-8 border border-white/20 transform transition-all duration-200 hover:bg-white/15 hover:scale-[1.02]">
         <div className="flex items-center justify-center space-x-3">
-          <BarChart3 className="w-5 h-5 text-purple-400" />
+          <BarChart3 className="w-5 h-5 text-slate-400" />
           <span className="text-lg font-medium text-slate-200">Your Stats</span>
         </div>
       </button>
