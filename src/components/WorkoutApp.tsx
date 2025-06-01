@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { MainDashboard } from './MainDashboard';
 import { ActiveWorkout } from './ActiveWorkout';
 import { ExerciseSelector } from './ExerciseSelector';
@@ -59,7 +59,11 @@ export const WorkoutApp: React.FC = () => {
     };
   };
 
-  const standardizedWorkoutHistory: WorkoutType[] = workoutHistory.map(convertToStandardWorkout);
+  // Create a memoized version to ensure it updates when workoutHistory changes
+  const standardizedWorkoutHistory: WorkoutType[] = React.useMemo(() => {
+    console.log('Converting workout history to standard format:', workoutHistory.length);
+    return workoutHistory.map(convertToStandardWorkout);
+  }, [workoutHistory]);
 
   const startNewWorkout = () => {
     const newWorkout: Workout = {

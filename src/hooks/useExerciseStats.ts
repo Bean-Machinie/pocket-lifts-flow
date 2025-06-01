@@ -26,15 +26,23 @@ export function useExerciseStats(
       allWorkouts: workouts.map(w => ({ id: w.id, startTime: w.startTime.toISOString() }))
     });
 
-    // Filter workouts within date range
+    // Filter workouts within date range - fix the date comparison
     const filteredWorkouts = workouts.filter(workout => {
       const workoutDate = new Date(workout.startTime);
-      const isInRange = workoutDate >= from && workoutDate <= to;
+      // Set times to start of day for proper comparison
+      const workoutDateOnly = new Date(workoutDate.getFullYear(), workoutDate.getMonth(), workoutDate.getDate());
+      const fromDateOnly = new Date(from.getFullYear(), from.getMonth(), from.getDate());
+      const toDateOnly = new Date(to.getFullYear(), to.getMonth(), to.getDate());
+      
+      const isInRange = workoutDateOnly >= fromDateOnly && workoutDateOnly <= toDateOnly;
       console.log('Workout date check:', {
         workoutId: workout.id,
         workoutDate: workoutDate.toISOString(),
+        workoutDateOnly: workoutDateOnly.toISOString(),
         fromDate: from.toISOString(),
+        fromDateOnly: fromDateOnly.toISOString(),
         toDate: to.toISOString(),
+        toDateOnly: toDateOnly.toISOString(),
         isInRange
       });
       return isInRange;
